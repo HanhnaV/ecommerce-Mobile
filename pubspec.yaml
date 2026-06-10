@@ -1,0 +1,37 @@
+name: ecommerce_mobile
+description: Ecommerce Mobile App — Flutter migration from React frontend.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  go_router: ^14.0.0
+  flutter_riverpod: ^2.5.0
+  dio: ^5.7.0
+  shared_preferences: ^2.3.0
+  flutter_secure_storage: ^9.2.2
+  dart_jsonwebtoken: ^2.8.0
+  reactive_forms: ^17.0.0
+  flutter_animate: ^4.5.0
+  carousel_slider: ^5.0.0
+  cached_network_image: ^3.3.1
+  fluttertoast: ^8.2.8
+  stomp_dart_client: ^2.0.0
+  image_picker: ^1.1.2
+  webview_flutter: ^4.8.0
+  flutter_dotenv: ^5.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
