@@ -1,4 +1,4 @@
-# TaiLieuDuAn.md — Tai Lieu Ky Thuat Chi Tiet Ecommerce Mobile (Flutter)
+# TaiLieuDuAn.md - Tai Lieu Ky Thuat Chi Tiet Ecommerce Mobile (Flutter)
 
 > Tai lieu nay tong hop toan bo thong tin ky thuat cua du an Ecommerce Mobile (Flutter), bao gom cau truc du an, cong nghe su dung, cac tinh nang, luong hoat dong, API endpoints, trang thai hoan thien, va cac van de can luu y.
 
@@ -13,28 +13,27 @@
 5. [Models (Data)](#5-models-data)
 6. [Services (API Layer)](#6-services-api-layer)
 7. [Providers (State Management)](#7-providers-state-management)
-8. [Screens — Public User](#8-screens--public-user)
-9. [Screens — Admin Panel](#9-screens--admin-panel)
-10. [Widgets](#10-widgets)
-11. [Routes](#11-routes)
-12. [API Endpoints](#12-api-endpoints)
-13. [Trang Thai Hoan Thien Theo Phase](#13-trang-thai-hoan-thien-theo-phase)
-14. [Known Issues & Technical Notes](#14-known-issues--technical-notes)
-15. [Luong Hoat Dong Chinh](#15-luong-hoat-dong-chinh)
-16. [Cac File Chinh Yeu](#16-cac-file-chinh-yeu)
+8. [Screens](#8-screens)
+9. [Widgets](#9-widgets)
+10. [Routes](#10-routes)
+11. [API Endpoints](#11-api-endpoints)
+12. [Trang Thai Hoan Thien Theo Phase](#12-trang-thai-hoan-thien-theo-phase)
+13. [Known Issues & Technical Notes](#13-known-issues--technical-notes)
+14. [Luong Hoat Dong Chinh](#14-luong-hoat-dong-chinh)
+15. [Cac File Chinh Yeu](#15-cac-file-chinh-yeu)
 
 ---
 
 ## 1. Tong Quan Du An
 
-- **Ten du an:** Ecommerce Mobile
+- **Ten du an:** Ecommerce Mobile (AirPod Store)
 - **Mo ta:** Ung dung di dong thuong mai dien tu (e-commerce) su dung Flutter, di chuyen tu frontend React sang Flutter.
 - **Nen tang backend:** Spring Boot (Java) REST API
 - **Base URL mac dinh:** `http://localhost:8080` (Android emulator: `http://10.0.2.2:8080`)
 - **Ngon ngu:** Dart (Flutter)
 - **Flutter SDK:** >= 3.19.0
-- **Dart SDK:** >= 3.3.0
-- **Trang thai hoan thien:** ~95% (theo README2.md)
+- **Dart SDK:** >= 3.3.0 (neu su dung Flutter 3.19+) hoac `>=3.11.5` (neu su dung Flutter 3.27+)
+- **Trang thai hoan thien:** ~95%
 
 ---
 
@@ -48,121 +47,108 @@ ecommerce-Mobile/
 ├── pubspec.lock
 ├── analysis_options.yaml
 ├── README.md                     # Tai lieu phat trien chi tiet
-├── README2.md                    # Ke hoach test
-├── MIGRATION_MASTER.md
 ├── test/
 │   └── widget_test.dart         # Smoke test co ban
 ├── lib/
 │   ├── main.dart                # Entry point
-│   ├── app.dart                # MaterialApp root (go_router + theme)
+│   ├── app.dart                 # MaterialApp root (go_router + theme)
 │   ├── core/
 │   │   ├── api/
-│   │   │   ├── api_client.dart           # Dio instance factory
-│   │   │   └── api_interceptors.dart     # AuthInterceptor (Bearer token)
-│   │   ├── config/
-│   │   │   └── api_config.dart          # API endpoint prefixes
+│   │   │   ├── api_client.dart         # Dio instance (Singleton apiClient)
+│   │   │   └── api_interceptors.dart   # AuthInterceptor (Bearer token)
 │   │   ├── constants/
-│   │   │   └── app_colors.dart          # (rong — chua su dung)
+│   │   │   └── app_colors.dart        # Color constants
 │   │   ├── router/
-│   │   │   └── app_router.dart          # GoRouter voi auth guard
+│   │   │   └── app_router.dart       # GoRouter voi auth guard (19 routes)
 │   │   ├── theme/
-│   │   │   └── app_colors.dart          # Mau sac chinh (su dung chinh)
+│   │   │   └── app_theme.dart        # Material 3 light theme
 │   │   └── utils/
-│   │       ├── jwt_utils.dart           # Decode JWT payload
-│   │       └── order_status.dart       # Enum OrderStatus
+│   │       ├── jwt_utils.dart        # Decode JWT payload
+│   │       └── order_status.dart     # Enum OrderStatus (7 trang thai)
 │   ├── data/
-│   │   ├── models/             # Data models
+│   │   ├── models/             # Data models (10 files)
 │   │   │   ├── user_model.dart
 │   │   │   ├── product_model.dart
-│   │   │   ├── category_model.dart     # (trong CategoryService)
+│   │   │   ├── category_model.dart
 │   │   │   ├── cart_model.dart
 │   │   │   ├── kyc_model.dart
-│   │   │   ├── chat_message_model.dart
-│   │   │   ├── dashboard_model.dart    # (trong DashboardService)
 │   │   │   ├── wallet_model.dart
+│   │   │   ├── chat_message_model.dart
 │   │   │   ├── report_model.dart
-│   │   │   └── order_model.dart        # (trong OrderService)
-│   │   └── services/          # API services
+│   │   │   ├── review_model.dart
+│   │   │   └── dashboard_model.dart
+│   │   └── services/          # API services (16 files)
 │   │       ├── auth_service.dart
 │   │       ├── product_service.dart
 │   │       ├── category_service.dart
 │   │       ├── cart_service.dart
 │   │       ├── order_service.dart
-│   │       ├── profile_service.dart
-│   │       ├── review_service.dart      # (trong ProductService)
-│   │       ├── wallet_service.dart
+│   │       ├── user_address_service.dart
 │   │       ├── kyc_service.dart
 │   │       ├── chat_service.dart
 │   │       ├── report_service.dart
-│   │       ├── seller_service.dart      # (chua co file)
-│   │       ├── dashboard_service.dart   # (chua co file)
-│   │       ├── promotion_service.dart   # (chua co file)
 │   │       ├── shipping_service.dart
-│   │       └── user_address_service.dart
-│   ├── providers/              # State management (Riverpod)
+│   │       ├── wallet_service.dart
+│   │       ├── profile_service.dart
+│   │       ├── review_service.dart
+│   │       ├── seller_service.dart
+│   │       ├── dashboard_service.dart
+│   │       └── promotion_service.dart
+│   ├── providers/              # State management (Riverpod) (8 files)
 │   │   ├── auth_provider.dart
-│   │   ├── auth_service_provider.dart  # (chua co file — loi)
+│   │   ├── auth_service_provider.dart
 │   │   ├── cart_provider.dart
 │   │   ├── chat_provider.dart
-│   │   ├── dashboard_provider.dart    # (chua co file)
-│   │   ├── profile_provider.dart     # (chua co file)
-│   │   ├── theme_provider.dart       # (chua co file)
 │   │   ├── wallet_provider.dart
-│   │   ├── kyc_provider.dart         # (chua co file)
-│   │   ├── order_provider.dart       # (chua co file)
-│   │   ├── product_provider.dart      # (chua co file)
-│   │   ├── report_provider.dart      # (chua co file)
-│   │   └── admin_provider.dart       # (chua co file)
+│   │   ├── dashboard_provider.dart
+│   │   ├── profile_provider.dart
+│   │   └── theme_provider.dart
 │   ├── screens/
-│   │   ├── admin/              # Admin Panel (NavigationRail)
-│   │   │   ├── admin_shell_screen.dart
-│   │   │   ├── admin_dashboard_view.dart
-│   │   │   ├── admin_users_view.dart
-│   │   │   ├── admin_orders_view.dart
-│   │   │   ├── admin_products_view.dart
-│   │   │   ├── admin_kyc_view.dart
-│   │   │   └── admin_reports_view.dart
-│   │   └── public/            # Public screens
-│   │       ├── auth/
-│   │       │   ├── login_screen.dart
-│   │       │   ├── register_screen.dart
-│   │       │   └── verify_screen.dart
-│   │       ├── home/
-│   │       │   └── home_screen.dart
-│   │       ├── products/
-│   │       │   ├── product_list_screen.dart
-│   │       │   └── product_detail_screen.dart
-│   │       ├── cart/
-│   │       │   └── cart_screen.dart
-│   │       ├── checkout/
-│   │       │   ├── checkout_screen.dart
-│   │       │   ├── vnpay_webview_screen.dart
-│   │       │   └── payment_result_screen.dart
-│   │       ├── orders/
-│   │       │   ├── order_list_screen.dart
-│   │       │   ├── order_detail_screen.dart
-│   │       │   └── order_tracking_screen.dart
-│   │       ├── profile/
-│   │       │   ├── profile_screen.dart
-│   │       │   ├── profile_edit_screen.dart
-│   │       │   ├── kyc_screen.dart
-│   │       │   └── wallet_screen.dart
-│   │       ├── address/
-│   │       │   ├── address_list_screen.dart
-│   │       │   └── address_form_screen.dart
-│   │       ├── chat/
-│   │       │   └── chat_screen.dart
-│   │       └── report/
-│   │           └── report_screen.dart
+│   │   ├── auth/
+│   │   │   ├── login_screen.dart
+│   │   │   ├── register_screen.dart
+│   │   │   └── verify_screen.dart
+│   │   ├── home/
+│   │   │   ├── home_screen.dart
+│   │   │   └── flash_sale_screen.dart
+│   │   ├── products/
+│   │   │   ├── product_list_screen.dart
+│   │   │   ├── product_detail_screen.dart
+│   │   │   └── widgets/
+│   │   │       ├── product_filter_modal.dart
+│   │   │       └── product_quick_view.dart
+│   │   ├── user/
+│   │   │   ├── cart/
+│   │   │   │   └── cart_screen.dart
+│   │   │   ├── checkout/
+│   │   │   │   ├── checkout_screen.dart
+│   │   │   │   ├── vnpay_webview_screen.dart
+│   │   │   │   └── payment_result_screen.dart
+│   │   │   ├── orders/
+│   │   │   │   ├── order_list_screen.dart
+│   │   │   │   ├── order_detail_screen.dart
+│   │   │   │   └── submit_review_screen.dart
+│   │   │   ├── profile/
+│   │   │   │   ├── profile_screen.dart
+│   │   │   │   ├── wallet_screen.dart
+│   │   │   │   └── kyc_screen.dart
+│   │   │   ├── address/
+│   │   │   │   ├── address_list_screen.dart
+│   │   │   │   └── address_form_screen.dart
+│   │   │   ├── chat/
+│   │   │   │   └── chat_screen.dart
+│   │   │   ├── report/
+│   │   │   │   └── report_screen.dart
+│   │   │   └── seller/
+│   │   │       ├── seller_dashboard_screen.dart
+│   │   │       └── seller_registration_screen.dart
 │   └── widgets/
-│       ├── chat/
-│       │   ├── chat_bubble.dart
-│       │   └── chat_input.dart
-│       ├── auth_layout.dart          # (chua doc)
-│       ├── auth_text_field.dart      # (chua doc)
-│       ├── product_card.dart          # (chua doc)
-│       └── product_image_gallery.dart # (chua doc)
+│       └── chat/
+│           ├── chat_bubble.dart
+│           └── chat_input.dart
 ```
+
+**Tong so file:** 87 files, ~15,699 dong Dart.
 
 ---
 
@@ -208,7 +194,7 @@ ecommerce-Mobile/
 | flutter_animate | ^4.5.0 | Animation |
 | carousel_slider | ^5.0.0 | Banner carousel |
 | cached_network_image | ^3.3.1 | Lazy load + cache hinh anh |
-| shimmer | ^4.5.0 | Loading placeholder (hien tai import trong home_screen.dart nhung khong co trong pubspec.yaml — loi can fix) |
+| shimmer | ^3.0.0 | Loading placeholder |
 | image_picker | ^1.1.2 | Chon/camera cho avatar va KYC |
 | webview_flutter | ^4.8.0 | VNPay payment WebView |
 
@@ -229,7 +215,7 @@ ecommerce-Mobile/
 | Thu vien | Version | Muc dich |
 |---|---|---|
 | dart_jsonwebtoken | ^2.8.0 | JWT encode/decode |
-| intl | ^0.19.0 | Đinh dang tien te, ngay thang |
+| intl | ^0.19.0 | Dinh dang tien te, ngay thang |
 | fluttertoast | ^8.2.8 | Toast notification |
 
 ---
@@ -246,48 +232,104 @@ final apiClient = Dio(
     receiveTimeout: const Duration(seconds: 15),
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
   ),
-)..interceptors.addAll([AuthInterceptor(), LogInterceptor(...)]);
+)..interceptors.addAll([AuthInterceptor(), LogInterceptor(requestBody: true, responseBody: true)]);
 ```
 
-**Luu y:** Co su khac biet giua baseUrl trong `api_client.dart` (doc tu `.env`) va trong `api_config.dart` (hardcode `http://10.0.2.2:8080`). `api_client.dart` su dung gia tri tu `.env` (`http://localhost:8080`), con `api_config.dart` chi dinh nghia cac prefix cho endpoint.
+**Luu y:** `apiClient` la singleton. Su dung truc tiep trong cac service.
 
 ### 4.2 Auth Interceptor (`lib/core/api/api_interceptors.dart`)
 
 - Tu dong them `Authorization: Bearer {token}` vao moi request.
 - Khi nhan HTTP 401, tu dong xoa `access_token` khoi secure storage.
 
-### 4.3 API Config (`lib/core/config/api_config.dart`)
+### 4.3 API Prefix (trong cac service - khong co file api_config.dart)
 
-Dinh nghia cac API prefix:
+Cac service dinh nghia endpoint truc tiep voi base URL:
 
 ```dart
-static const String apiVersion = '/api/v1';
-static const String authPrefix       = '$apiVersion/auth';
-static const String productPrefix     = '$apiVersion/product';
-static const String categoryPrefix    = '$apiVersion/category';
-static const String cartPrefix        = '$apiVersion/cart';
-static const String orderPrefix       = '$apiVersion/order';
-static const String addressPrefix     = '$apiVersion/address';
-static const String reviewPrefix      = '$apiVersion/review';
-static const String walletPrefix      = '$apiVersion/wallet';
-static const String kycPrefix         = '$apiVersion/kyc';
-static const String requestPrefix     = '$apiVersion/request';
-static const String shippingPrefix    = '$apiVersion/shipping';
-static const String paymentPrefix     = '$apiVersion/payment';
-static const String checkoutPrefix    = '$apiVersion/checkout';
-static const String chatPrefix        = '$apiVersion/chat';
-static const String adminPrefix       = '$apiVersion/admin';
-static const String filesPrefix       = '/files';
-static const String sellerPrefix      = '$apiVersion/seller';
+// AuthService
+POST /api/v1/auth/login
+POST /api/v1/auth/register
+POST /api/v1/auth/verify
+POST /api/v1/auth/resend-otp
+
+// ProductService
+GET  /api/v1/product
+GET  /api/v1/product/{id}
+GET  /api/v1/recommendations
+GET  /api/v1/product/{id}/similar
+
+// CartService
+GET    /api/v1/cart
+POST   /api/v1/cart/items
+POST   /api/v1/cart/items/{id}/plus
+POST   /api/v1/cart/items/{id}/minus
+DELETE /api/v1/cart/items/{id}
+
+// OrderService
+GET  /api/v1/order/me
+GET  /api/v1/order/{id}/me
+POST /api/v1/order
+PATCH /api/v1/order/{id}/received
+PATCH /api/v1/order/{id}/cancel
+POST /api/v1/payment/orders/{id}/vnpay
+GET  /api/v1/payment/vnpay/return
+
+// ShippingService
+GET  /api/v1/shipping/provinces
+GET  /api/v1/shipping/districts?provinceId=
+GET  /api/v1/shipping/wards?districtId=
+POST /api/v1/shipping/fee
+
+// WalletService
+GET /api/v1/wallet/me
+
+// KycService
+GET  /api/v1/kyc/me
+POST /api/v1/kyc/individual
+
+// ChatService
+GET    /api/v1/chat/conversation
+GET    /api/v1/chat/{id}/messages
+POST   /api/v1/chat/{id}/messages
+PATCH  /api/v1/chat/{id}/messages/{msgId}/read
+
+// ReportService
+GET  /api/v1/report/me
+POST /api/v1/report
+GET  /api/v1/report/{id}
+
+// ReviewService
+GET  /api/v1/review/products/{productId}
+GET  /api/v1/review/products/{productId}/reviews/stats
+POST /api/v1/review/products/{productId}
+
+// SellerService
+POST /api/v1/seller/register
+GET  /api/v1/seller/me
+PUT  /api/v1/seller/me
+GET  /api/v1/seller/{shopId}/products
+GET  /api/v1/seller/{shopId}/orders
+PATCH /api/v1/seller/orders/{orderId}/status
+POST /api/v1/seller/reviews/{reviewId}/reply
+
+// DashboardService
+GET /api/v1/statistics/seller
+GET /api/v1/order/shops/{shopId}/top-products
+
+// PromotionService
+GET /api/v1/promotions/flash-sale
+GET /api/v1/promotions/deals
+GET /api/v1/promotions/banners
 ```
 
 ### 4.4 JWT Utils (`lib/core/utils/jwt_utils.dart`)
 
 Cac ham decode JWT payload:
 
-- `getAccountVerified(String token)` — tra ve `true` neu tai khoan da duoc xac thuc.
-- `getUserRole(String token)` — tra ve role (`ADMIN`, `BUSINESS`, `USER`, `CUSTOMER`).
-- `getUserId(String token)` — tra ve user ID tu claim `sub`.
+- `getAccountVerified(String token)` - tra ve `true` neu tai khoan da duoc xac thuc.
+- `getUserRole(String token)` - tra ve role (`ADMIN`, `BUSINESS`, `USER`, `CUSTOMER`).
+- `getUserId(String token)` - tra ve user ID tu claim `sub`.
 
 ### 4.5 Order Status (`lib/core/utils/order_status.dart`)
 
@@ -295,15 +337,15 @@ Enum voi 7 trang thai:
 
 | Code | Hien thi | Mau |
 |---|---|---|
-| `PENDING` | Chờ xác nhận | Cam |
-| `CONFIRMED` | Đã xác nhận | Xanh duong |
-| `SHIPPING` | Đang giao | Tim |
-| `DELIVERED` | Đã giao | Xanh la |
-| `CANCELLED` | Đã hủy | Do |
-| `REFUND_REQUESTED` | Yêu cầu hoàn tiền | Vang |
-| `REFUNDED` | Đã hoàn tiền | Xanh duong nhat |
+| `PENDING` | Cho xac nhan | Cam |
+| `CONFIRMED` | Da xac nhan | Xanh duong |
+| `SHIPPING` | Dang giao | Tim |
+| `DELIVERED` | Da giao | Xanh la |
+| `CANCELLED` | Da huy | Do |
+| `REFUND_REQUESTED` | Yeu cau hoan tien | Vang |
+| `REFUNDED` | Da hoan tien | Xanh duong nhat |
 
-### 4.6 App Colors (`lib/core/theme/app_colors.dart`)
+### 4.6 App Colors (`lib/core/constants/app_colors.dart`)
 
 | Bien | Gia tri | Su dung |
 |---|---|---|
@@ -317,6 +359,11 @@ Enum voi 7 trang thai:
 | `rating` | `#FBBF24` | Sao danh gia |
 | `discount` | `#DC2626` | Giam gia |
 | `outOfStock` | `#94A3B8` | Het hang |
+| `pending` | `#F59E0B` | Trang thai cho |
+| `confirmed` | `#3B82F6` | Trang thai da xac nhan |
+| `shipping` | `#8B5CF6` | Trang thai dang giao |
+| `delivered` | `#22C55E` | Trang thai da giao |
+| `cancelled` | `#EF4444` | Trang thai da huy |
 
 ### 4.7 App Router (`lib/core/router/app_router.dart`)
 
@@ -339,20 +386,19 @@ Public routes: `/login`, `/register`, `/verify`, `/payment-result`
 
 ```dart
 class UserModel {
-  String id;           // UUID
-  String username;
+  int id;
   String email;
+  String fullName;
   String role;        // ADMIN | BUSINESS | USER | CUSTOMER
-  String? phoneNumber;
-  String? fullName;
   String? phone;
+  String? phoneNumber;
   String? avatarUrl;
   bool accountVerified;
   DateTime? createdAt;
+  String? gender;
+  DateTime? dateOfBirth;
 }
 ```
-
-Properties: `isAdmin`, `isBusiness`, `isCustomer`
 
 ### 5.2 ProductModel
 
@@ -360,55 +406,61 @@ Properties: `isAdmin`, `isBusiness`, `isCustomer`
 class ProductModel {
   int id;
   String name;
-  String description;
-  double price;
-  double? originalPrice;
-  String? imageUrl;
-  List<String> images;
-  int stock;
-  int sold;
-  double rating;
-  int reviewCount;
-  String category;
-  String shopName;
-  int shopId;
-  bool isActive;
-  DateTime? createdAt;
+  String? description;
+  double basePrice;
+  String? sku;
+  String? categoryId;
+  String? categoryName;
+  int? shopId;
+  String? shopName;
+  String status;           // PUBLISHED | ...
+  List<ProductImage> images;
+  String? thumbnailUrl;
 }
 ```
 
-Computed: `discountPercent` (neu co giam gia), `isOutOfStock`
+Computed: `formattedPrice`, `isPublished`
 
-### 5.3 CartItem & CartGroup
+### 5.3 CartItem & CartState
 
 ```dart
 class CartItem {
-  int productId, price, quantity, shopId;
+  int id, productId, price, quantity, shopId;
   String name, shopName;
   String? imageUrl;
 }
 
-class CartGroup {
-  int shopId;
-  String shopName;
+class CartState {
   List<CartItem> items;
-  double totalPrice;   // computed
+  int totalItems;
+  double totalPrice;
 }
 ```
 
-### 5.4 OrderModel (trong OrderService — chua co file rieng)
+### 5.4 OrderModel (trong OrderService - co file rieng)
 
 ```dart
-class OrderModel {
-  int id, addressId, totalAmount;
-  String orderStatus;  // PENDING | CONFIRMED | SHIPPING | DELIVERED | CANCELLED | REFUND_REQUESTED | REFUNDED
-  String paymentMethod;  // COD | VNPAY
-  String paymentStatus;   // PAID | UNPAID | REFUNDED
-  String shippingMethod;
-  String? note;
-  DateTime createdAt;
+class OrderDetail {
+  int id;
+  String orderCode;
+  String status;       // PENDING | CONFIRMED | SHIPPING | DELIVERED | CANCELLED | ...
+  int shopId;
+  String shopName;
+  double totalAmount;
+  double shippingFee;
+  String? notes;
   List<OrderItem> items;
-  AddressModel address;
+  AddressInfo? address;
+  DateTime? createdAt;
+}
+
+class OrderItem {
+  int productId;
+  String productName;
+  double unitPrice;
+  int quantity;
+  double totalPrice;
+  String? imageUrl;
 }
 ```
 
@@ -416,62 +468,78 @@ class OrderModel {
 
 ```dart
 class KycModel {
-  int id, userId;
-  String idCardNumber;  // CCCD/CMND
-  String frontImageUrl, backImageUrl, selfieImageUrl;
-  String status;       // PENDING | APPROVED | REJECTED
+  int? id;
+  String? frontImageUrl, backImageUrl, selfieImageUrl;
+  String? idCardNumber;
+  String? status;    // PENDING | APPROVED | REJECTED
+  DateTime? submittedAt, reviewedAt;
   String? rejectionReason;
-  DateTime createdAt,? reviewedAt;
 }
 ```
 
-Computed: `isPending`, `isApproved`, `isRejected`
+Enum: `KycStatus.notSubmitted`, `.pending`, `.approved`, `.rejected`
 
-### 5.6 WalletModel & TransactionModel
+### 5.6 WalletModel
 
 ```dart
 class WalletModel {
-  int id;
-  double balance, frozenBalance, availableBalance;
-  String? bankName, bankAccountNumber, bankAccountHolder;
-}
-
-class TransactionModel {
-  int id;
-  String type, status;   // DEPOSIT | WITHDRAW | REFUND | CASHBACK
-  double amount;
-  String description;
-  DateTime createdAt;
+  String walletId;
+  String userId;
+  String currency;         // VND
+  double availableBalance;
+  double heldBalance;
+  double totalBalance;
 }
 ```
 
-### 5.7 ChatMessageModel & ConversationModel
+### 5.7 ChatMessageModel & Conversation
 
 ```dart
-class ChatMessageModel {
-  int id, conversationId, senderId;
-  String senderEmail, senderName, senderAvatar, content;
+class ChatMessage {
+  int id, conversationId;
+  String content;
+  String senderType;     // USER | ADMIN | BOT
   DateTime createdAt;
+  bool isRead;
 }
 
-class ConversationModel {
-  int id,? orderId,? productId,? shopId, unreadCount;
-  String? shopName;
-  ChatMessageModel? lastMessage;
-  DateTime createdAt;
+class Conversation {
+  int id;
+  String userId;
+  String status;        // OPEN | CLOSED
+  String? lastMessage;
+  int unreadCount;
+  DateTime? lastMessageAt;
 }
 ```
 
-### 5.8 ReportModel & ReportPage
+### 5.8 ReportModel
 
 ```dart
-class ReportModel {
+class Report {
   int id;
-  String type;   // ORDER | PRODUCT | SHOP | USER
-  String reason, status, reporterEmail;
-  int? orderId, productId;
-  DateTime createdAt,? resolvedAt;
-  String? adminNote, description;
+  String reportType;    // ORDER | PRODUCT | SELLER | REVIEW | OTHER
+  String reason;
+  String? description;
+  String status;        // PENDING | RESOLVED | REJECTED
+  int? targetId;
+  String? targetType;
+  DateTime createdAt;
+  DateTime? resolvedAt;
+  String? adminNote;
+}
+```
+
+### 5.9 ReviewModel
+
+```dart
+class ReviewModel {
+  int id, userId, rating;
+  String? userFullName, userAvatarUrl;
+  String? comment;
+  List<String> imageUrls;
+  SellerReply? sellerReply;
+  DateTime? createdAt;
 }
 ```
 
@@ -487,18 +555,15 @@ class ReportModel {
 | `register` | POST | `/api/v1/auth/register` | `{username, email, password, phoneNumber}` | `({id, username, email, phoneNumber})` |
 | `verify` | POST | `/api/v1/auth/verify` | `{email, otp}` | `void` |
 | `resendOtp` | POST | `/api/v1/auth/resend-otp` | `{email}` | `void` |
-| `updateProfile` | PUT | `/api/v1/auth/profile` | `{fullName?, phone?, avatarUrl?}` | `UserModel` |
-| `changePassword` | PUT | `/api/v1/auth/password` | `{currentPassword, newPassword}` | `void` |
 
 ### 6.2 ProductService
 
 | Method | HTTP | Endpoint | Params |
 |---|---|---|---|
-| `getProducts` | GET | `/api/v1/product` | `page, size, search?, category?, minPrice?, maxPrice?, sortBy?, sortDir?` |
-| `getProductDetail` | GET | `/api/v1/product/{id}` | |
-| `getRecommendations` | GET | `/api/v1/product/recommendations` | `size` |
-| `getSimilarProducts` | GET | `/api/v1/product/{id}/similar` | `size` |
-| `getReviews` | GET | `/api/v1/product/{id}/reviews` | `page, size, rating?` |
+| `getProducts` | GET | `/api/v1/product` | `page, size, sortBy, sortDir, search?, categoryId?, shopId?, minPrice?, maxPrice?` |
+| `getProductById` | GET | `/api/v1/product/{id}` | |
+| `getRecommendations` | GET | `/api/v1/recommendations` | `limit` |
+| `getSimilarProducts` | GET | `/api/v1/product/{id}/similar` | `limit` |
 
 ### 6.3 CategoryService
 
@@ -512,75 +577,74 @@ class ReportModel {
 |---|---|---|---|
 | `getCart` | GET | `/api/v1/cart` | |
 | `addToCart` | POST | `/api/v1/cart/items` | `{productId, quantity}` |
-| `updateQuantity` | PUT | `/api/v1/cart/items/{productId}` | `{quantity}` |
-| `increaseQuantity` | POST | `/api/v1/cart/items/{productId}/plus` | |
-| `decreaseQuantity` | POST | `/api/v1/cart/items/{productId}/minus` | |
-| `removeItem` | DELETE | `/api/v1/cart/items/{productId}` | |
-| `clearCart` | DELETE | `/api/v1/cart` | |
+| `increaseQuantity` | POST | `/api/v1/cart/items/{id}/plus` | |
+| `decreaseQuantity` | POST | `/api/v1/cart/items/{id}/minus` | |
+| `removeItem` | DELETE | `/api/v1/cart/items/{id}` | |
+
+**Luu y:** Khong co `clearCart` endpoint. Chi co xoa tung item.
 
 ### 6.5 OrderService
 
 | Method | HTTP | Endpoint | Body |
 |---|---|---|---|
-| `getOrders` | GET | `/api/v1/order` | |
-| `getOrderDetail` | GET | `/api/v1/order/{id}` | |
-| `createOrder` | POST | `/api/v1/order` | `{addressId, shippingMethod, paymentMethod, vnpayUrl?, shopId?, note?}` |
-| `createPaymentUrl` | POST | `/api/v1/payment/vnpay` | `{addressId, shippingMethod, totalAmount, shopId?, note?}` |
-| `cancelOrder` | PUT | `/api/v1/order/{id}/cancel` | |
-| `requestRefund` | PUT | `/api/v1/order/{id}/refund` | |
-| `confirmDelivery` | PUT | `/api/v1/order/{id}/confirm` | |
-| `rePayWithVNPay` | POST | `/api/v1/order/{id}/repay` | |
+| `getMyOrders` | GET | `/api/v1/order/me` | `status?` |
+| `getMyOrderById` | GET | `/api/v1/order/{id}/me` | |
+| `createOrder` | POST | `/api/v1/order` | `{shopId, addressId, notes?}` |
+| `markOrderReceived` | PATCH | `/api/v1/order/{id}/received` | |
+| `cancelOrder` | PATCH | `/api/v1/order/{id}/cancel` | |
+| `createVnpayPayment` | POST | `/api/v1/payment/orders/{id}/vnpay` | |
+| `verifyVnpayPayment` | GET | `/api/v1/payment/vnpay/return` | query params |
 
 ### 6.6 UserAddressService
 
 | Method | HTTP | Endpoint | Body |
 |---|---|---|---|
-| `getAddresses` | GET | `/api/v1/address` | |
-| `createAddress` | POST | `/api/v1/address` | `{recipientName, phone, province, district, ward, street, label?, isDefault}` |
-| `updateAddress` | PUT | `/api/v1/address/{id}` | `{recipientName?, phone?, province?, district?, ward?, street?, label?, isDefault?}` |
+| `listMyAddresses` | GET | `/api/v1/address` | |
+| `createAddress` | POST | `/api/v1/address` | `{receiverName, receiverPhone, addressLine, city, district, ward, districtId?, wardCode?}` |
+| `updateAddress` | PUT | `/api/v1/address/{id}` | `{...fields}` |
 | `deleteAddress` | DELETE | `/api/v1/address/{id}` | |
 | `setDefaultAddress` | PATCH | `/api/v1/address/{id}/default` | |
 
 ### 6.7 WalletService
 
-| Method | HTTP | Endpoint | Body |
-|---|---|---|---|
-| `getWallet` | GET | `/api/v1/wallet` | |
-| `getTransactions` | GET | `/api/v1/wallet/transactions` | `page, size` |
-| `withdraw` | POST | `/api/v1/wallet/withdraw` | `{amount, bankName, bankAccountNumber, bankAccountHolder}` |
-| `linkBank` | POST | `/api/v1/wallet/bank` | `{bankName, bankAccountNumber, bankAccountHolder}` |
+| Method | HTTP | Endpoint |
+|---|---|---|
+| `getMyWallet` | GET | `/api/v1/wallet/me` |
+
+**Luu y:** Chi co get wallet. Khong co withdraw/linkBank endpoint (README goc sai).
 
 ### 6.8 KycService
 
 | Method | HTTP | Endpoint | Body |
 |---|---|---|---|
 | `getMyKyc` | GET | `/api/v1/kyc/me` | |
-| `submitKyc` | POST | `/api/v1/kyc/individual` | Multipart: `{idCardNumber, frontImageFile, backImageFile, selfieImageFile}` |
-| `resubmitKyc` | POST | `/api/v1/kyc/resubmit` | Multipart: `{idCardNumber, frontImageFile, backImageFile, selfieImageFile}` |
+| `submitKyc` | POST | `/api/v1/kyc/individual` | Multipart: `{idCardNumber, frontImage, backImage, selfieImage}` |
 
 ### 6.9 ChatService
 
 | Method | HTTP | Endpoint | Body |
 |---|---|---|---|
-| `getConversations` | GET | `/api/v1/chat` | |
-| `getOrCreateConversation` | POST | `/api/v1/chat` | `{orderId?, productId?, shopId?}` |
-| `getMessages` | GET | `/api/v1/chat/{id}/messages` | |
+| `getOrCreateConversation` | GET | `/api/v1/chat/conversation` | |
+| `getMessages` | GET | `/api/v1/chat/{id}/messages` | `page, size` |
 | `sendMessage` | POST | `/api/v1/chat/{id}/messages` | `{content}` |
-| `markAsRead` | PUT | `/api/v1/chat/{id}/read` | |
+| `markAsRead` | PATCH | `/api/v1/chat/{id}/messages/{msgId}/read` | |
 
 ### 6.10 ReportService
 
 | Method | HTTP | Endpoint | Body |
 |---|---|---|---|
-| `getReports` | GET | `/api/v1/request` | `status, page, size` |
-| `createReport` | POST | `/api/v1/request` | `{type, reason, description?, orderId?, productId?}` |
-| `getReportDetail` | GET | `/api/v1/request/{id}` | |
+| `getMyReports` | GET | `/api/v1/report/me` | `status?` |
+| `submitReport` | POST | `/api/v1/report` | `{reportType, reason, description?, targetId?, targetType?}` |
+| `getReportById` | GET | `/api/v1/report/{id}` | |
 
 ### 6.11 ShippingService
 
 | Method | HTTP | Endpoint | Body |
 |---|---|---|---|
-| `calculateFee` | POST | `/api/v1/shipping/fee` | `{addressId, shopId, districtId?}` |
+| `getProvinces` | GET | `/api/v1/shipping/provinces` | |
+| `getDistricts` | GET | `/api/v1/shipping/districts` | `provinceId` |
+| `getWards` | GET | `/api/v1/shipping/wards` | `districtId` |
+| `calculateFee` | POST | `/api/v1/shipping/fee` | `{from_district_id, from_ward_code, to_district_id, to_ward_code, weight, service_type_id?, insurance_value?}` |
 
 ### 6.12 ProfileService
 
@@ -588,11 +652,46 @@ class ReportModel {
 |---|---|---|---|
 | `updateProfile` | PUT | `/api/v1/user/profile` | Multipart: `{fullName?, phoneNumber?, gender?, dateOfBirth?, avatarFile?}` |
 
+### 6.13 ReviewService
+
+| Method | HTTP | Endpoint | Body |
+|---|---|---|---|
+| `getProductReviews` | GET | `/api/v1/review/products/{productId}` | `page, size, rating?, hasImages?` |
+| `getProductReviewStats` | GET | `/api/v1/review/products/{productId}/reviews/stats` | |
+| `submitReview` | POST | `/api/v1/review/products/{productId}` | `{rating, comment?, images[]?}` (multipart) |
+
+### 6.14 SellerService
+
+| Method | HTTP | Endpoint | Body |
+|---|---|---|---|
+| `registerAsSeller` | POST | `/api/v1/seller/register` | `{shopName, shopDescription, businessEmail, businessPhone, businessAddress?}` |
+| `getMyShop` | GET | `/api/v1/seller/me` | |
+| `updateShop` | PUT | `/api/v1/seller/me` | `{shopName?, shopDescription?, ...}` |
+| `getShopProducts` | GET | `/api/v1/seller/{shopId}/products` | `page, size` |
+| `getShopOrders` | GET | `/api/v1/seller/{shopId}/orders` | `status?, page, size` |
+| `updateOrderStatus` | PATCH | `/api/v1/seller/orders/{orderId}/status` | `{status}` |
+| `replyToReview` | POST | `/api/v1/seller/reviews/{reviewId}/reply` | `{reply}` |
+
+### 6.15 DashboardService
+
+| Method | HTTP | Endpoint |
+|---|---|---|
+| `getSellerStatistics` | GET | `/api/v1/statistics/seller` |
+| `getTopProducts` | GET | `/api/v1/order/shops/{shopId}/top-products` | `limit` |
+
+### 6.16 PromotionService
+
+| Method | HTTP | Endpoint |
+|---|---|---|
+| `getFlashSale` | GET | `/api/v1/promotions/flash-sale` |
+| `getDeals` | GET | `/api/v1/promotions/deals` | `page, size` |
+| `getBanners` | GET | `/api/v1/promotions/banners` |
+
 ---
 
 ## 7. Providers (State Management)
 
-Tat ca su dung `flutter_riverpod` voi `StateNotifier` pattern.
+Tat ca su dung `flutter_riverpod` voi `StateNotifier` pattern hoac `FutureProvider`.
 
 ### 7.1 AuthNotifier (`auth_provider.dart`)
 
@@ -601,68 +700,94 @@ class AuthState { UserModel? user; String? token; bool isAuthenticated; bool acc
 ```
 
 **Methods:**
-- `_restoreSession()` — doc token + user tu secure storage khi app khoi dong
-- `loginWithCredentials(username, password)` — goi AuthService, luu token + user
-- `logout()` — xoa token, user, clear cart
-- `updateUser(updatedUser)` — cap nhat user trong state
-- `updateAccountVerified(value)` — cap nhat trang thai xac thuc
-- `registerAndGetEmail(...)` — dang ky, tra ve email
-- `verifyOtp(email, otp)` — xac thuc OTP
-- `resendOtp(email)` — gui lai OTP
+- `_restoreSession()` - doc token + user tu secure storage khi app khoi dong
+- `login(token, user)` - luu token + user
+- `logout()` - xoa token, user, clear cart
+- `updateUser(updatedUser)` - cap nhat user trong state
+- `updateAccountVerified(value)` - cap nhat trang thai xac thuc
 
 ### 7.2 CartNotifier (`cart_provider.dart`)
 
 ```dart
-class CartState { List<CartItem> items; bool isLoading; bool isSyncing; String? errorMessage; }
-// Computed: totalItems, totalPrice, groupedByShop
+class CartState { List<CartItem> items; int totalItems; double totalPrice; }
+// Computed: totalItems, totalPrice
 ```
 
 **Methods:**
-- `fetchCart()` — load cart tu API
-- `addToCart(productId, quantity)`
-- `increaseQuantity(productId)` — optimistic update
-- `decreaseQuantity(productId)` — optimistic update
-- `removeItem(productId)` — optimistic remove
-- `clearCart()`
+- `setFromApi(CartApiResponse)` - load tu API
+- `addItem(CartItem)`
+- `updateQuantityById(id, quantity)`
+- `updateQuantity(productId, quantity)`
+- `removeById(id)`
+- `removeItem(productId)`
+- `clear()`
 
-### 7.3 WalletNotifier (`wallet_provider.dart`)
+### 7.3 WalletProvider (`wallet_provider.dart`)
 
 ```dart
-class WalletState { WalletModel? wallet; List<TransactionModel> transactions; bool isLoading; bool isLoadingTransactions; String? errorMessage; }
+final walletServiceProvider = Provider<WalletService>((ref) => WalletService());
+final walletProvider = FutureProvider.autoDispose<WalletModel>((ref) async {
+  final service = ref.watch(walletServiceProvider);
+  return service.getMyWallet();
+});
 ```
-
-**Methods:**
-- `fetchWallet()`
-- `fetchTransactions({refresh})`
-- `withdraw(amount, bankName, bankAccountNumber, bankAccountHolder)`
-- `linkBank(...)`
 
 ### 7.4 ChatNotifier (`chat_provider.dart`)
 
 ```dart
-class ChatState { List<ConversationModel> conversations; List<ChatMessageModel> messages; ConversationModel? activeConversation; bool isLoadingConversations; bool isLoadingMessages; bool isSending; String? errorMessage; }
+class ChatState { Conversation? conversation; List<ChatMessage> messages; bool isLoading; bool isSending; String? error; }
 ```
 
 **Methods:**
-- `fetchConversations()`
-- `openConversation({conversationId, orderId, productId, shopId})`
-- `sendMessage(content)`
-- `clearActiveConversation()`
+- `loadConversation()` - getOrCreate conversation + load messages
+- `loadMoreMessages()` - pagination
+- `sendMessage(content)` - gui tin nhan (optimistic)
+- `clearError()`
 
-### 7.5 Cac Provider Chua Co File
+### 7.5 DashboardProvider (`dashboard_provider.dart`)
 
-- `admin_provider.dart` — cho admin dashboard, users, products, orders, kyc, reports
-- `product_provider.dart` — cho product list, detail, recommendations, similar products
-- `order_provider.dart` — cho order list, detail, cancel, confirm
-- `kyc_provider.dart` — cho KYC state
-- `report_provider.dart` — cho report state
-- `profile_provider.dart` — cho profile state
-- `dashboard_provider.dart` — cho dashboard state
-- `theme_provider.dart` — cho theme mode (light/dark/system)
+```dart
+final sellerStatisticsProvider = FutureProvider.autoDispose<SellerStatistics>((ref) async {
+  final service = ref.watch(dashboardServiceProvider);
+  return service.getSellerStatistics();
+});
+final topProductsProvider = FutureProvider.autoDispose.family<List<TopProduct>, int>((ref, shopId) async {
+  return service.getTopProducts(shopId);
+});
+```
+
+### 7.6 ProfileProvider (`profile_provider.dart`)
+
+```dart
+final profileUpdateProvider = StateNotifierProvider<ProfileUpdateNotifier, AsyncValue<UserModel?>>((ref) {
+  return ProfileUpdateNotifier(ref.watch(profileServiceProvider));
+});
+
+class ProfileUpdateNotifier {
+  Future<UserModel> updateProfile({fullName?, phoneNumber?, gender?, dateOfBirth?, avatarPath?});
+}
+```
+
+### 7.7 ThemeProvider (`theme_provider.dart`)
+
+```dart
+class ThemeState { ThemeMode mode; bool isDark; }
+
+class ThemeNotifier {
+  setTheme(ThemeMode mode);  // luu vao secure storage
+  toggleTheme();              // dark <-> light
+}
+```
+
+### 7.8 AuthServiceProvider (`auth_service_provider.dart`)
+
+```dart
+final authServiceProvider = Provider<AuthService>((ref) => AuthService());
+```
 
 ---
 
-## 8. Screens — Public User
+## 8. Screens
 
 ### 8.1 Auth Screens
 
@@ -695,51 +820,56 @@ Sau khi thanh cong -> `context.go('/verify', extra: {'email': email})`.
 
 ### 8.2 Home Screen (`/`)
 
-- **Banner Carousel:** PageView voi 2 banner placeholder (picsum.photos), auto indicator
-- **Product Grid:** Grid 2 cot, 20 san pham dau tien, pull-to-refresh
-- **Recommendations:** Horizontal ListView 8 san pham (chi khi da login)
-- **Quick View:** Long press product -> BottomSheet xem nhanh + them gio hang
-- **Bottom Navigation:** 4 tabs — Trang chu, Don hang, Gio hang, Tai khoan
+- **Banner Carousel:** CarouselSlider voi placeholder banners
+- **Product Grid:** Grid 2 cot, pagination, pull-to-refresh
+- **Recommendations:** Horizontal ListView (chi khi da login)
+- **Quick View:** Long press product -> BottomSheet xem nhanh
+- **Flash Sale:** Chuyen huong `/flash-sale`
+- **Bottom Navigation:** 4 tabs - Trang chu, Don hang, Gio hang, Tai khoan
 - **Cart Badge:** Hien so luong san pham trong gio hang
 
-### 8.3 Product List Screen (`/products`)
+### 8.3 Flash Sale Screen (`/flash-sale`)
+
+- Hien thi danh sach san pham Flash Sale tu API
+- Countdown timer (neu co khuyen mai dang active)
+- Chuyen huong sang ProductDetail khi bam
+
+### 8.4 Product List Screen (`/products`)
 
 - **Search:** TextField + API filter
 - **Category Filter:** Load tu API, hien chip
 - **Price Range Filter:** minPrice/maxPrice
-- **Sort:** moi nhat, gia thap -> cao, gia cao -> thap, ban chay
-- **Pagination:** Infinite scroll (load them khi scroll den cuoi)
+- **Sort:** moi nhat, gia thap -> cao, gia cao -> thap
+- **Pagination:** Infinite scroll
 - **Filter Modal:** BottomSheet voi tat ca cac tuy chon loc
 
-### 8.4 Product Detail Screen (`/products/:id`)
+### 8.5 Product Detail Screen (`/products/:id`)
 
-- **Image Gallery:** PageView carousel + thumbnail strip + prev/next arrows + fullscreen
-- **Product Info:** ten, gia, gia goc (neu co giam gia), danh muc, shop, so luong ton
+- **Image Gallery:** PageView carousel + thumbnail strip
+- **Product Info:** ten, gia, danh muc, shop, so luong ton
 - **Badges:** Chinh hang 100%, Mien phi ship, Bao hanh, Doi tra 7 ngay
-- **Quantity Selector:** +/- buttons (1-99)
+- **Quantity Selector:** +/- buttons
 - **Actions:** Them vao gio (chua login -> redirect login), Mua ngay
 - **Description:** Scroll xuong xem mo ta
-- **Reviews:** Thong ke (diem TB, thanh phan tram, loc theo rating), danh sach reviews voi hinh anh + shop reply
-- **Similar Products:** Horizontal ListView 8 san pham tuong tu
+- **Reviews:** Thong ke (diem TB, thanh phan tram, loc theo rating), danh sach reviews
+- **Similar Products:** Horizontal ListView
 
-### 8.5 Cart Screen (`/cart`)
+### 8.6 Cart Screen (`/cart`)
 
 - **Auth Guard:** Chua login -> hien trang yeu cau dang nhap
 - **Empty State:** Icon + text + nut "Tiep tuc mua sam"
-- **Shop Grouping:** Header shop + items theo shop
-- **Item Controls:** Tang/giam so luong, xoa (co confirm)
+- **Item Controls:** Tang/giam so luong, xoa
 - **Checkout Button:** Tong tien + nut "Mua tu Shop nay" cho tung shop
 
-### 8.6 Checkout Screen (`/checkout`)
+### 8.7 Checkout Screen (`/checkout`)
 
-- **Address Selection:** Load tu API, chon dia chi giao hang, hien thi mac dinh
+- **Address Selection:** Load tu API, chon dia chi giao hang
 - **No Address:** Hien thong bao + nut them dia chi moi
 - **Shipping Fee Calculator:** Goi API tinh phi van chuyen khi chon dia chi
-- **Payment Method:** Radio buttons — COD, VNPay
 - **Order Note:** TextField cho ghi chu
 - **Place Order:** Tao don hang COD hoac chuyen sang VNPay WebView
 
-### 8.7 VNPay WebView Screen (`/checkout/vnpay`)
+### 8.8 VNPay WebView Screen (`/checkout/vnpay`)
 
 - Load VNPay URL trong WebView
 - Lang nghe return URL (`vnp_ResponseCode`)
@@ -747,19 +877,19 @@ Sau khi thanh cong -> `context.go('/verify', extra: {'email': email})`.
 - Ma khac = that bai -> hien message loi tuong ung
 - Nut Quay ve trang chu / Xem don hang / Quay ve gio hang
 
-### 8.8 Payment Result Screen (`/payment-result`)
+### 8.9 Payment Result Screen (`/payment-result`)
 
 - Hien thi ket qua thanh toan VNPay (thanh cong/that bai)
 - Nut "Ve trang chu", "Xem don hang", "Quay ve gio hang"
 
-### 8.9 Order List Screen (`/orders`)
+### 8.10 Order List Screen (`/orders`)
 
-- **Filter by Status:** PopupMenu voi 7 trang thai
+- **Filter by Status:** PopupMenu voi cac trang thai
 - **Order Card:** Ma don, ngay, trang thai (mau), so san pham, tong tien
 - **Empty State:** "Chua co don hang nao"
 - **Pull-to-refresh**
 
-### 8.10 Order Detail Screen (`/orders/:id`)
+### 8.11 Order Detail Screen (`/orders/:id`)
 
 - **Order Info:** Ma don, ngay dat, trang thai, phuong thuc thanh toan
 - **Product List:** Hinh anh, ten, so luong, gia
@@ -771,197 +901,126 @@ Sau khi thanh cong -> `context.go('/verify', extra: {'email': email})`.
   - DELIVERED -> Nut "Danh gia" (chuyen `/submit-review`)
   - Da huy/hoan tien -> Chi xem
 
-### 8.11 Order Tracking Screen (`/orders/:id/tracking`)
+### 8.12 Submit Review Screen (`/submit-review`)
 
-- Timeline 4 buoc: Chờ xác nhận -> Đã xác nhận -> Đang giao -> Đã giao
-- Buoc hien tai duoc highlight
-- Trang thai huy/hoan tien hien thi rieng
+- Rating (1-5 sao) + binh luan + hinh anh (tuy chon)
+- Gui len API
 
-### 8.12 Profile Screen (`/profile`)
+### 8.13 Profile Screen (`/profile`)
 
-- **Header:** Avatar (NetworkImage hoac icon mac dinh), ten, email, so dien thoai
-- **Wallet Card:** So du kha dung, so du bi dong (neu co)
+- **Header:** Avatar, ten, email
 - **Menu Items:**
   - Don hang cua toi -> `/orders`
   - Dia chi giao hang -> `/addresses`
   - Xac thuc tai khoan (KYC) -> `/kyc`
   - Tin nhan ho tro -> `/chat`
   - Tro giup & Ho tro -> `/report`
-  - Ve chung toi
-- **Edit Icon:** Chuyen `/profile/edit`
+  - Tro thanh nguoi ban -> `/seller/register`
+- **Edit Icon:** Chuyen trang edit
 
-### 8.13 Profile Edit Screen (`/profile/edit`)
+### 8.14 Address List Screen (`/addresses`)
 
-- **Avatar:** CircleAvatar + camera overlay, picker (camera/gallery), maxWidth=512, quality=85
-- **Fields:** Ho va ten, so dien thoai, ngay sinh (DatePicker), gioi tinh (Dropdown: Nam/Nu/Khac)
-- **Submit:** PUT multipart/form-data (text + file)
+- **Empty State:** "Chua co dia chi nao"
+- **Address Card:** Ten nguoi nhan, sdt, dia chi day du, badge "Mac dinh"
+- **Actions:** Chinh sua, dat mac dinh, xoa (co confirm)
+- **FAB:** Them dia chi moi -> `/addresses/add`
 
-### 8.14 Wallet Screen (`/wallet`)
+### 8.15 Address Form Screen (`/addresses/add` hoac `/addresses/edit`)
 
-- **Balance Card:** Gradient xanh, tong so du, kha dung, bi dong
-- **Action Buttons:** Rut tien, Lien ket tai khoan ngan hang (bottom sheet)
-- **Transaction History:** ListView voi icon (nap/rut), mo ta, so tien (+/-), ngay
+- **Fields:** Ten nguoi nhan, so dien thoai, Tinh/Quan/Phuong (Dropdown tu API shipping), duong, label
+- **Validation:** Tat ca truong deu bat buoc, sdt VN format
+- **Submit:** POST (tao moi) hoac PUT (cap nhat)
 
-**Withdraw BottomSheet:** Nhap so tien, goi `POST /api/v1/wallet/withdraw`
-**Link Bank BottomSheet:** Nhap ten Ngan hang, so TK, ten chu TK
-
-### 8.15 KYC Screen (`/kyc`)
+### 8.16 KYC Screen (`/kyc`)
 
 - **Trang thai PENDING:** Icon dong ho xoay + thong bao "Dang cho xet duyet"
 - **Trang thai APPROVED:** Icon check xanh + thong bao thanh cong
 - **Trang thai REJECTED:** Icon X do + ly do tu choi + nut "Gui lai yeu cau"
 - **Form (lan dau / gui lai):**
   - So CCCD (9 hoac 12 so, chi chua so)
-  - 3 hinh anh: mat truoc CCCD, mat sau CCCD, anh chan dung (ImagePicker: camera/gallery, max 1280px, quality 85)
+  - 3 hinh anh: mat truoc CCCD, mat sau CCCD, anh chan dung (ImagePicker: camera/gallery)
 
-### 8.16 Address List Screen (`/addresses`)
+### 8.17 Chat Screen (`/chat`)
 
-- **Empty State:** "Chua co dia chi nao"
-- **Address Card:** Ten nguoi nhan, sdt, dia chi day du, label (nha/cong ty), badge "Mac dinh"
-- **Actions:** Chinh sua, dat mac dinh, xoa (co confirm)
-- **FAB:** Them dia chi moi -> `/addresses/new` hoac `/addresses/add`
-
-### 8.17 Address Form Screen (`/addresses/new` hoac `/addresses/edit`)
-
-- **Fields:** Ten nguoi nhan, so dien thoai, Tinh/Quan/Phuong (text input — chua co dia phuong picker), duong, label
-- **Validation:** Tat ca truong deu bat buoc, sdt VN format
-- **Submit:** POST (tao moi) hoac PUT (cap nhat)
-
-### 8.18 Chat Screen (`/chat`)
-
-- **Conversation List:** ListView voi avatar shop, ten, tin nhan cuoi, thoi gian, badge so tin nhan chua doc
-- **Empty State:** "Chua co cuoc tro chuyen nao"
-- **Message View:** ChatBubble (me = blue, nguoi khac = gray), auto-scroll khi co tin nhan moi
+- **Conversation:** getOrCreate conversation + load messages
+- **Message View:** ChatBubble (USER=blue right, ADMIN/BOT=gray left), auto-scroll
 - **ChatInput:** TextField + Send button, disabled khi dang gui
 
-### 8.19 Report Screen (`/report`)
+### 8.18 Report Screen (`/report`)
 
-- **Tab 1:** "Dang xu ly" — danh sach bao cao chua giai quyet
-- **Tab 2:** "Da giai quyet" — danh sach da xu ly
-- **FAB:** Tao bao cao moi (loai: ORDER, PRODUCT, SHOP, USER + ly do + mo ta tuy chon)
-- **Report Card:** Loai, ly do, trang thai, ngay tao
+- **Tab 1:** "Dang xu ly" - danh sach bao cao chua giai quyet
+- **Tab 2:** "Da giai quyet" - danh sach da xu ly
+- **FAB:** Tao bao cao moi (loai: ORDER, PRODUCT, SELLER, REVIEW, OTHER + ly do + mo ta tuy chon)
 - **Pull-to-refresh**
 
----
+### 8.19 Seller Registration Screen (`/seller/register`)
 
-## 9. Screens — Admin Panel
+- Form dang ky tro thanh nguoi ban
+- Fields: shopName, shopDescription, businessEmail, businessPhone, businessAddress
 
-Admin Panel su dung NavigationRail (sidebar) voi 6 tab.
+### 8.20 Seller Dashboard Screen (`/seller/dashboard`)
 
-### 9.1 Admin Shell Screen
-
-- **NavigationRail:** 6 muc — Dashboard, Nguoi dung, Don hang, San pham, KYC, Bao cao
-- **Responsive:** extended khi width >= 1200px, collapsed khi < 1200px
-- **TopBar:** Tieu de theo tab hien tai + avatar admin
-
-### 9.2 Admin Dashboard View (Tab 0)
-
-- **Stat Cards (4):** Tong nguoi dung, Tong don hang, Tong doanh thu (currency format), Tong san pham
-- **Order Summary Chips:** Cho xu ly / Da xac nhan / Dang giao / Da giao / Da huy
-- **Revenue Chart:** Bar chart 7 ngay gan nhat, tooltip hien so tien
-- **Quick Stats:** Don hang cho xu ly + KYC cho duyet
-
-### 9.3 Admin Users View (Tab 1)
-
-- **DataTable:** email, username, role, trang thai (active/locked), ngay tao
-- **Filter:** Theo role (ALL/ADMIN/BUSINESS/USER/CUSTOMER)
-- **Search:** Loc theo email/username
-- **Pagination:** Next/Previous
-- **Actions:** Dat lam Admin (PATCH), Khoa/Mo khoa tai khoan
-
-### 9.4 Admin Orders View (Tab 2)
-
-- **DataTable:** Ma don, nguoi mua, shop, trang thai, tong tien, ngay
-- **Filter:** Theo trang thai, search theo ma don
-- **Pagination**
-- **Actions:** Cap nhat trang thai (Pending -> Confirm -> Shipping -> Delivered / Cancel), Xem chi tiet popup
-
-### 9.5 Admin Products View (Tab 3)
-
-- **DataTable:** Hinh anh, ten, gia, shop, danh muc, trang thai, ngay tao
-- **Filter:** Theo danh muc, trang thai (active/inactive), search
-- **Actions:** An/Hien san pham, Xoa san pham (co confirm)
-
-### 9.6 Admin KYC View (Tab 4)
-
-- **Filter:** Theo trang thai (PENDING/APPROVED/REJECTED)
-- **KYC Card:** Avatar, thong tin CCCD, hinh anh (3 buc anh), trang thai
-- **Actions:**
-  - PENDING: Nut "Duyet" (PATCH approve) + Nut "Tu choi" (nhap ly do + PATCH reject)
-  - Xem chi tiet 3 hinh anh (fullscreen)
-
-### 9.7 Admin Reports View (Tab 5)
-
-- **Filter:** Theo loai (ORDER/PRODUCT/SHOP/USER), trang thai
-- **Report Card:** Loai, ly do, mo ta, nguoi bao cao, ngay tao, trang thai
-- **Actions:**
-  - PENDING: Nut "Giai quyet" + Nut "Tu choi" (PATCH resolve/reject + ghi chu admin)
+- **Stat Cards:** Tong don, don cho xu ly, doanh thu, so san pham, khach hang, rating
+- **Top Products:** ListView san pham ban chay
+- **Orders:** Danh sach don hang theo trang thai
 
 ---
 
-## 10. Widgets
+## 9. Widgets
 
-### 10.1 ChatBubble
+### 9.1 ChatBubble (`lib/widgets/chat/chat_bubble.dart`)
 
-- **Me (sender):** Bong tin blue (AppColors.primary), canh phai
-- **Other:** Bong tin xam (dark mode adaptive), canh trai
-- **Hien thi:** Avatar + ten (neu khong phai minh), noi dung, thoi gian (HH:mm)
+- **USER:** Bong tin blue (AppColors.primary), canh phai
+- **ADMIN/BOT:** Bong tin xam, canh trai
+- **Hien thi:** noi dung, thoi gian (HH:mm)
 - **Adaptive:** Ho tro dark/light mode
 
-### 10.2 ChatInput
+### 9.2 ChatInput (`lib/widgets/chat/chat_input.dart`)
 
 - **TextField:** Multi-line (1-4 dong), border-radius 24, placeholder "Nhap tin nhan..."
 - **Send Button:** Icon send, disabled khi `isSending=true`
 - **Bottom padding:** Tinh den safe area cua thiet bi
 
-### 10.3 Cac Widget Chua Doc
+### 9.3 ProductWidgets (`lib/screens/products/widgets/`)
 
-- `auth_layout.dart` — chua doc noi dung
-- `auth_text_field.dart` — chua doc noi dung (README noi day la loi vi file nam o duong dan sai)
-- `product_card.dart` — chua doc noi dung
-- `product_image_gallery.dart` — chua doc noi dung
+- `product_filter_modal.dart` - BottomSheet loc san pham (category, price, sort)
+- `product_quick_view.dart` - BottomSheet xem nhanh san pham
 
 ---
 
-## 11. Routes
+## 10. Routes
 
-| Route | Screen | Auth | Role |
-|---|---|---|---|
-| `/` | HomeScreen | — | ALL |
-| `/login` | LoginScreen | Public | ALL |
-| `/register` | RegisterScreen | Public | ALL |
-| `/verify` | VerifyScreen | Public | ALL |
-| `/products` | ProductListScreen | — | ALL |
-| `/products/:id` | ProductDetailScreen | — | ALL |
-| `/cart` | CartScreen | Yes | USER |
-| `/checkout` | CheckoutScreen | Yes | USER |
-| `/checkout/vnpay` | VnpayWebViewScreen | Yes | USER |
-| `/payment-result` | PaymentResultScreen | Public | ALL |
-| `/profile` | ProfileScreen | Yes | USER |
-| `/profile/edit` | ProfileEditScreen | Yes | USER |
-| `/wallet` | WalletScreen | Yes | USER |
-| `/addresses` | AddressListScreen | Yes | USER |
-| `/addresses/new` | AddressFormScreen | Yes | USER |
-| `/addresses/edit` | AddressFormScreen | Yes | USER |
-| `/kyc` | KycScreen | Yes | USER |
-| `/orders` | OrderListScreen | Yes | USER |
-| `/orders/:id` | OrderDetailScreen | Yes | USER |
-| `/orders/:id/tracking` | OrderTrackingScreen | Yes | USER |
-| `/submit-review` | SubmitReviewScreen | Yes | USER |
-| `/chat` | ChatScreen | Yes | USER |
-| `/report` | ReportScreen | Yes | USER |
-| `/admin` | AdminShellScreen | Yes | ADMIN |
-| `/admin/users` | AdminShellScreen(tab 1) | Yes | ADMIN |
-| `/admin/orders` | AdminShellScreen(tab 2) | Yes | ADMIN |
-| `/admin/products` | AdminShellScreen(tab 3) | Yes | ADMIN |
-| `/admin/kyc` | AdminShellScreen(tab 4) | Yes | ADMIN |
-| `/admin/reports` | AdminShellScreen(tab 5) | Yes | ADMIN |
+| Route | Screen | Auth |
+|---|---|---|
+| `/` | HomeScreen | - |
+| `/login` | LoginScreen | Public |
+| `/register` | RegisterScreen | Public |
+| `/verify` | VerifyScreen | Public |
+| `/products` | ProductListScreen | - |
+| `/products/:id` | ProductDetailScreen | - |
+| `/flash-sale` | FlashSaleScreen | - |
+| `/cart` | CartScreen | Yes |
+| `/checkout` | CheckoutScreen | Yes |
+| `/checkout/vnpay` | VnpayWebViewScreen | Yes |
+| `/payment-result` | PaymentResultScreen | Public |
+| `/profile` | ProfileScreen | Yes |
+| `/addresses` | AddressListScreen | Yes |
+| `/addresses/add` | AddressFormScreen | Yes |
+| `/addresses/edit` | AddressFormScreen | Yes |
+| `/kyc` | KycScreen | Yes |
+| `/orders` | OrderListScreen | Yes |
+| `/orders/:id` | OrderDetailScreen | Yes |
+| `/submit-review` | SubmitReviewScreen | Yes |
+| `/chat` | ChatScreen | Yes |
+| `/report` | ReportScreen | Yes |
+| `/seller/register` | SellerRegistrationScreen | Yes |
+| `/seller/dashboard` | SellerDashboardScreen | Yes (BUSINESS) |
 
 ---
 
-## 12. API Endpoints
+## 11. API Endpoints
 
-### 12.1 Auth
+### 11.1 Auth
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
@@ -969,44 +1028,39 @@ Admin Panel su dung NavigationRail (sidebar) voi 6 tab.
 | POST | `/api/v1/auth/register` | Dang ky |
 | POST | `/api/v1/auth/verify` | Xac thuc OTP |
 | POST | `/api/v1/auth/resend-otp` | Gui lai OTP |
-| PUT | `/api/v1/auth/profile` | Cap nhat profile |
-| PUT | `/api/v1/auth/password` | Doi mat khau |
 
-### 12.2 Product
+### 11.2 Product
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
 | GET | `/api/v1/product` | Danh sach san pham (paginated, filter, sort) |
 | GET | `/api/v1/product/{id}` | Chi tiet san pham |
-| GET | `/api/v1/product/recommendations` | San pham goi y |
+| GET | `/api/v1/recommendations` | San pham goi y |
 | GET | `/api/v1/product/{id}/similar` | San pham tuong tu |
-| GET | `/api/v1/product/{id}/reviews` | Danh gia san pham |
 
-### 12.3 Cart
+### 11.3 Cart
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
 | GET | `/api/v1/cart` | Lay gio hang |
 | POST | `/api/v1/cart/items` | Them vao gio |
-| PUT | `/api/v1/cart/items/{productId}` | Cap nhat so luong |
-| POST | `/api/v1/cart/items/{productId}/plus` | Tang so luong |
-| POST | `/api/v1/cart/items/{productId}/minus` | Giam so luong |
-| DELETE | `/api/v1/cart/items/{productId}` | Xoa khoi gio |
-| DELETE | `/api/v1/cart` | Xoa het gio |
+| POST | `/api/v1/cart/items/{id}/plus` | Tang so luong |
+| POST | `/api/v1/cart/items/{id}/minus` | Giam so luong |
+| DELETE | `/api/v1/cart/items/{id}` | Xoa khoi gio |
 
-### 12.4 Order
+### 11.4 Order
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
-| GET | `/api/v1/order` | Danh sach don hang |
-| GET | `/api/v1/order/{id}` | Chi tiet don hang |
+| GET | `/api/v1/order/me` | Danh sach don hang cua toi |
+| GET | `/api/v1/order/{id}/me` | Chi tiet don hang cua toi |
 | POST | `/api/v1/order` | Tao don hang |
-| PUT | `/api/v1/order/{id}/cancel` | Huy don |
-| PUT | `/api/v1/order/{id}/refund` | Yeu cau hoan tien |
-| PUT | `/api/v1/order/{id}/confirm` | Xac nhan da nhan hang |
-| POST | `/api/v1/order/{id}/repay` | Thanh toan lai VNPay |
+| PATCH | `/api/v1/order/{id}/received` | Xac nhan da nhan hang |
+| PATCH | `/api/v1/order/{id}/cancel` | Huy don |
+| POST | `/api/v1/payment/orders/{id}/vnpay` | Tao thanh toan VNPay |
+| GET | `/api/v1/payment/vnpay/return` | Xac nhan thanh toan VNPay |
 
-### 12.5 Address
+### 11.5 Address
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
@@ -1016,152 +1070,148 @@ Admin Panel su dung NavigationRail (sidebar) voi 6 tab.
 | DELETE | `/api/v1/address/{id}` | Xoa dia chi |
 | PATCH | `/api/v1/address/{id}/default` | Dat dia chi mac dinh |
 
-### 12.6 Wallet
+### 11.6 Wallet
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
-| GET | `/api/v1/wallet` | Lay thong tin vi |
-| GET | `/api/v1/wallet/transactions` | Lay lich su giao dich |
-| POST | `/api/v1/wallet/withdraw` | Rut tien |
-| POST | `/api/v1/wallet/bank` | Lien ket ngan hang |
+| GET | `/api/v1/wallet/me` | Lay thong tin vi |
 
-### 12.7 KYC
+### 11.7 KYC
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
 | GET | `/api/v1/kyc/me` | Lay KYC cua minh |
 | POST | `/api/v1/kyc/individual` | Gui yeu cau KYC |
-| POST | `/api/v1/kyc/resubmit` | Gui lai KYC |
 
-### 12.8 Chat
+### 11.8 Chat
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
-| GET | `/api/v1/chat` | Lay danh sach cuoc tro chuyen |
-| POST | `/api/v1/chat` | Tao/mo cuoc tro chuyen |
+| GET | `/api/v1/chat/conversation` | Tao/lay cuoc tro chuyen |
 | GET | `/api/v1/chat/{id}/messages` | Lay tin nhan |
 | POST | `/api/v1/chat/{id}/messages` | Gui tin nhan |
-| PUT | `/api/v1/chat/{id}/read` | Danh dau da doc |
+| PATCH | `/api/v1/chat/{id}/messages/{msgId}/read` | Danh dau da doc |
 
-### 12.9 Report
-
-| Method | Endpoint | Mo ta |
-|---|---|---|
-| GET | `/api/v1/request` | Lay danh sach bao cao |
-| POST | `/api/v1/request` | Tao bao cao moi |
-| GET | `/api/v1/request/{id}` | Chi tiet bao cao |
-
-### 12.10 Shipping & Payment
+### 11.9 Report
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
+| GET | `/api/v1/report/me` | Lay danh sach bao cao cua toi |
+| POST | `/api/v1/report` | Tao bao cao moi |
+| GET | `/api/v1/report/{id}` | Chi tiet bao cao |
+
+### 11.10 Review
+
+| Method | Endpoint | Mo ta |
+|---|---|---|
+| GET | `/api/v1/review/products/{productId}` | Danh gia san pham |
+| GET | `/api/v1/review/products/{productId}/reviews/stats` | Thong ke danh gia |
+| POST | `/api/v1/review/products/{productId}` | Gui danh gia |
+
+### 11.11 Seller
+
+| Method | Endpoint | Mo ta |
+|---|---|---|
+| POST | `/api/v1/seller/register` | Dang ky nguoi ban |
+| GET | `/api/v1/seller/me` | Lay thong tin shop cua toi |
+| PUT | `/api/v1/seller/me` | Cap nhat thong tin shop |
+| GET | `/api/v1/seller/{shopId}/products` | Danh sach san pham cua shop |
+| GET | `/api/v1/seller/{shopId}/orders` | Don hang cua shop |
+| PATCH | `/api/v1/seller/orders/{orderId}/status` | Cap nhat trang thai don |
+| POST | `/api/v1/seller/reviews/{reviewId}/reply` | Tra loi danh gia |
+
+### 11.12 Dashboard & Statistics
+
+| Method | Endpoint | Mo ta |
+|---|---|---|
+| GET | `/api/v1/statistics/seller` | Thong ke cua nguoi ban |
+| GET | `/api/v1/order/shops/{shopId}/top-products` | San pham ban chay |
+
+### 11.13 Shipping
+
+| Method | Endpoint | Mo ta |
+|---|---|---|
+| GET | `/api/v1/shipping/provinces` | Danh sach tinh/thanh |
+| GET | `/api/v1/shipping/districts` | Danh sach quan/huyen |
+| GET | `/api/v1/shipping/wards` | Danh sach phuong/xa |
 | POST | `/api/v1/shipping/fee` | Tinh phi van chuyen |
-| POST | `/api/v1/payment/vnpay` | Tao URL thanh toan VNPay |
 
-### 12.11 User
+### 11.14 Promotion
+
+| Method | Endpoint | Mo ta |
+|---|---|---|
+| GET | `/api/v1/promotions/flash-sale` | Flash Sale |
+| GET | `/api/v1/promotions/deals` | Deals |
+| GET | `/api/v1/promotions/banners` | Banners |
+
+### 11.15 Profile
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
 | PUT | `/api/v1/user/profile` | Cap nhat ho so (multipart) |
 
-### 12.12 Category
+### 11.16 Category
 
 | Method | Endpoint | Mo ta |
 |---|---|---|
 | GET | `/api/v1/category` | Lay danh sach danh muc |
 
-### 12.13 Admin
-
-| Method | Endpoint | Mo ta |
-|---|---|---|
-| GET | `/api/v1/admin/dashboard/stats` | Thong ke tong quan |
-| GET | `/api/v1/admin/dashboard/orders/summary` | Tom tat don hang |
-| GET | `/api/v1/admin/dashboard/revenue` | Du lieu doanh thu |
-| GET | `/api/v1/admin/users` | Danh sach nguoi dung (paginated) |
-| GET | `/api/v1/admin/users/{id}` | Chi tiet nguoi dung |
-| PATCH | `/api/v1/admin/users/{id}/role` | Cap nhat vai tro |
-| PATCH | `/api/v1/admin/users/{id}/lock` | Khoa tai khoan |
-| PATCH | `/api/v1/admin/users/{id}/unlock` | Mo khoa tai khoan |
-| GET | `/api/v1/admin/products` | Danh sach san pham |
-| PATCH | `/api/v1/admin/products/{id}/active` | Bat/tat san pham |
-| DELETE | `/api/v1/admin/products/{id}` | Xoa san pham |
-| GET | `/api/v1/admin/orders` | Danh sach don hang |
-| GET | `/api/v1/admin/orders/{id}` | Chi tiet don hang |
-| PATCH | `/api/v1/admin/orders/{id}/status` | Cap nhat trang thai don hang |
-| GET | `/api/v1/admin/kyc` | Danh sach KYC |
-| GET | `/api/v1/admin/kyc/{id}` | Chi tiet KYC |
-| PATCH | `/api/v1/admin/kyc/{id}/approve` | Duyet KYC |
-| PATCH | `/api/v1/admin/kyc/{id}/reject` | Tu choi KYC |
-| GET | `/api/v1/admin/reports` | Danh sach bao cao |
-| GET | `/api/v1/admin/reports/{id}` | Chi tiet bao cao |
-| PATCH | `/api/v1/admin/reports/{id}/resolve` | Giai quyet bao cao |
-| PATCH | `/api/v1/admin/reports/{id}/reject` | Tu choi bao cao |
-
 ---
 
-## 13. Trang Thai Hoan Thien Theo Phase
+## 12. Trang Thai Hoan Thien Theo Phase
 
 | Phase | Ten | Status | Ngay |
 |---|---|---|---|
-| P0 | Project Setup | ✅ Hoan thanh | 2026-06-09 |
-| P1 | Core Infrastructure | ✅ Hoan thanh | 2026-06-09 |
-| P2 | Auth Screens | ✅ Hoan thanh | 2026-06-09 |
-| P3 | Product Browsing | ⬜ Chua bat dau | — |
-| P4 | Cart & Checkout | ⬜ Chua bat dau | — |
-| P5 | Orders | ✅ Hoan thanh | 2026-06-09 |
-| P6 | Profile & Wallet | ✅ Hoan thanh | 2026-06-10 |
-| P7 | KYC & Address | ⬜ Chua bat dau | — |
-| P8 | Marketplace & Deals | ⬜ Chua bat dau | — |
-| P9 | Chatbot & Report | ⬜ Chua bat dau | — |
-| P10 | Business Dashboard | ✅ Hoan thanh | 2026-06-10 |
-| P11 | Admin Panel | ✅ Hoan thanh | 2026-06-10 |
+| P0 | Project Setup | Hoan thanh | 2026-06-09 |
+| P1 | Core Infrastructure | Hoan thanh | 2026-06-09 |
+| P2 | Auth Screens | Hoan thanh | 2026-06-09 |
+| P3 | Product Browsing | Hoan thanh | 2026-06-10 |
+| P4 | Cart & Checkout | Hoan thanh | 2026-06-10 |
+| P5 | Orders | Hoan thanh | 2026-06-09 |
+| P6 | Profile & Wallet | Hoan thanh | 2026-06-10 |
+| P7 | KYC & Address | Hoan thanh | 2026-06-10 |
+| P8 | Flash Sale & Deals | Hoan thanh | 2026-06-10 |
+| P9 | Chat & Report | Hoan thanh | 2026-06-10 |
+| P10 | Business Dashboard | Hoan thanh | 2026-06-10 |
+| P11 | Review System | Hoan thanh | 2026-06-10 |
 
 **Tong hoan thien: ~95%**
 
 ---
 
-## 14. Known Issues & Technical Notes
+## 13. Known Issues & Technical Notes
 
-### 14.1 Cac loi can fix
+### 13.1 Cac van de can luu y
 
 | # | Van de | Vi tri | Giai phap | Trang thai |
 |---|---|---|---|---|
-| 1 | `auth_service_provider.dart` khong co file | providers/ | Tao provider AuthService su dung `createDio()` | CHUA FIX |
-| 2 | `shimmer` trong pubspec.yaml | pubspec.yaml | Them `shimmer: ^4.5.0` | CHUA FIX |
-| 3 | Duplicate app_colors | `core/constants/app_colors.dart` (rong) vs `core/theme/app_colors.dart` (co noi dung) | Xoa file rong, giu file co noi dung | CANH BAO |
-| 4 | Widget test chi la stub | test/widget_test.dart | Viet them unit test + widget test | CHUA FIX |
-| 5 | Nhieu provider chua co file rieng | providers/ | Implement day du cac provider | CHUA FIX |
-| 6 | Mot so service chua co file rieng | services/ | `dashboard_service.dart`, `seller_service.dart`, `promotion_service.dart` | CHUA FIX |
+| 1 | Widget test chi la stub | test/widget_test.dart | Viet them unit test + widget test | CHUA FIX |
+| 2 | Khong co `clearCart` endpoint | CartService | Chi xoa tung item, khong xoa ca gio | CANH BAO |
+| 3 | Khong co withdraw/linkBank endpoint | WalletService | Chi get wallet, chua co withdraw/linkBank | CHUA FIX |
+| 4 | Seller dashboard chi ho tro BUSINESS role | app_router.dart | USER/CUSTOMER bi redirect ve `/` | DA CHINH |
+| 5 | Chat chi co 1 conversation | ChatService | `/chat/conversation` khong co param tao nhieu conversation | CANH BAO |
 
-### 14.2 Cac file bi trung lap giua 2 cau truc
+### 13.2 Route import paths
 
-Du an co 2 tap hop file screens:
-1. **`lib/screens/`** — cau truc cu (admin/ + public/ + user/)
-2. **`lib/screens/public/`** va **`lib/screens/admin/`** — cau truc moi
+`app_router.dart` import cac screen tu `../../screens/...` - duong dan import tuong doi, can dam bao folder structure dung.
 
-Hien tai `app_router.dart` su dung cau truc cu (`lib/screens/`), nhung cac file thuc te nam trong `lib/screens/public/` va `lib/screens/admin/`. Day la nguyen nhan cua nhieu loi import bi sai.
+### 13.3 App Title
 
-### 14.3 API Config loi nghich ly
+`app.dart` su dung title "AirPod Store". Neu doi ten app, cap nhat tai day.
 
-- `api_client.dart` doc baseUrl tu `.env` = `http://localhost:8080`
-- `api_config.dart` hardcode = `http://10.0.2.2:8080`
+### 13.4 Cart Provider - Khong co Sync
 
-Dieu nay co the gay ra loi ket noi tren Android emulator.
-
-### 14.4 Route import paths
-
-`app_router.dart` import cac screen tu `../../screens/...` nhung cac screen thuc te nam o `../../screens/public/...` hoac `../../screens/admin/...`. Can cap nhat duong dan import trong `app_router.dart`.
+`CartProvider` luu cart locally. Khong co giai thich sync voi API sau khi addToCart. Can goi `getCart` de refresh sau khi thay doi.
 
 ---
 
-## 15. Luong Hoat Dong Chinh
+## 14. Luong Hoat Dong Chinh
 
-### 15.1 Luong Auth — Register -> Verify -> Login
+### 14.1 Luong Auth - Register -> Verify -> Login
 
 ```
 RegisterScreen
   -> POST /api/v1/auth/register
-  -> POST /api/v1/auth/resend-otp (khi nhan nut)
   -> /verify?email=...
 
 VerifyScreen
@@ -1174,7 +1224,7 @@ LoginScreen
   -> / (HomeScreen)
 ```
 
-### 15.2 Luong Mua Hang A-Z
+### 14.2 Luong Mua Hang A-Z
 
 ```
 HomeScreen
@@ -1183,61 +1233,78 @@ HomeScreen
   -> [Them vao gio] -> POST /api/v1/cart/items
   -> /cart (CartScreen)
   -> [Mua tu Shop nay] -> /checkout?shopId=...
-  -> [Chon dia chi] -> POST /api/v1/shipping/fee
+  -> [Chon dia chi] -> POST /api/v1/shipping/fee (tinh phi)
   -> [COD] -> POST /api/v1/order -> /orders
-  -> [VNPay] -> POST /api/v1/payment/vnpay -> /checkout/vnpay
+  -> [VNPay] -> POST /api/v1/payment/orders/{id}/vnpay -> /checkout/vnpay
     -> VNPay WebView -> Return URL voi vnp_ResponseCode
     -> /payment-result -> /orders
 ```
 
-### 15.3 Luong Admin
+### 14.3 Luong Dia Chi & Shipping
 
 ```
-LoginScreen (ADMIN)
-  -> /admin (AdminShellScreen)
-  -> Tab Dashboard: GET /api/v1/admin/dashboard/stats, /orders/summary, /revenue
-  -> Tab Users: GET /api/v1/admin/users -> PATCH role, lock/unlock
-  -> Tab Orders: GET /api/v1/admin/orders -> PATCH status
-  -> Tab Products: GET /api/v1/admin/products -> PATCH active, DELETE
-  -> Tab KYC: GET /api/v1/admin/kyc -> PATCH approve/reject
-  -> Tab Reports: GET /api/v1/admin/reports -> PATCH resolve/reject
+CheckoutScreen
+  -> GET /api/v1/address (lay ds dia chi)
+  -> [Chon dia chi] -> AddressListScreen -> AddressFormScreen
+  -> [Submit dia chi] -> POST /api/v1/address
+  -> [Chon dia chi xong] -> POST /api/v1/shipping/fee
+  -> POST /api/v1/order
+```
+
+### 14.4 Luong Seller
+
+```
+ProfileScreen
+  -> /seller/register -> SellerRegistrationScreen
+  -> POST /api/v1/seller/register
+  -> /seller/dashboard -> SellerDashboardScreen
+  -> GET /api/v1/statistics/seller
+  -> GET /api/v1/order/shops/{shopId}/orders
+  -> GET /api/v1/seller/{shopId}/products
 ```
 
 ---
 
-## 16. Cac File Chinh Yeu
+## 15. Cac File Chinh Yeu
 
 | STT | File | Mo ta |
 |---|---|---|
 | 1 | `lib/main.dart` | Entry point, load .env, wrap ProviderScope |
 | 2 | `lib/app.dart` | MaterialApp.router, theme light/dark, router config |
-| 3 | `lib/core/router/app_router.dart` | GoRouter, 25+ routes, auth guard |
-| 4 | `lib/core/api/api_client.dart` | Dio factory |
+| 3 | `lib/core/router/app_router.dart` | GoRouter, 19 routes, auth guard |
+| 4 | `lib/core/api/api_client.dart` | Dio singleton instance |
 | 5 | `lib/core/api/api_interceptors.dart` | Bearer token interceptor |
-| 6 | `lib/core/config/api_config.dart` | API endpoint prefixes |
-| 7 | `lib/providers/auth_provider.dart` | Auth state + 8 methods |
-| 8 | `lib/providers/cart_provider.dart` | Cart state + optimistic updates |
-| 9 | `lib/providers/wallet_provider.dart` | Wallet + transactions |
-| 10 | `lib/providers/chat_provider.dart` | Conversations + messages |
-| 11 | `lib/data/services/auth_service.dart` | Login/register/verify/password |
-| 12 | `lib/data/services/order_service.dart` | Full order lifecycle |
-| 13 | `lib/screens/public/home/home_screen.dart` | Trang chu + banner + product grid |
-| 14 | `lib/screens/public/products/product_detail_screen.dart` | Chi tiet san pham + reviews |
-| 15 | `lib/screens/public/checkout/checkout_screen.dart` | Thanh toan + VNPay |
-| 16 | `lib/screens/public/orders/order_list_screen.dart` | Danh sach don hang |
-| 17 | `lib/screens/public/profile/profile_screen.dart` | Profile + wallet card |
-| 18 | `lib/screens/public/kyc/kyc_screen.dart` | Xac minh CCCD |
-| 19 | `lib/screens/public/chat/chat_screen.dart` | Chat ho tro |
-| 20 | `lib/screens/admin/admin_shell_screen.dart` | Admin NavigationRail shell |
-| 21 | `lib/screens/admin/admin_dashboard_view.dart` | Admin dashboard + chart |
-| 22 | `pubspec.yaml` | 17 dependencies |
-| 23 | `.env` | API_BASE_URL=http://localhost:8080 |
-| 24 | `README.md` | Tai lieu phat trien chi tiet |
-| 25 | `README2.md` | Ke hoach test 166 test cases |
+| 6 | `lib/providers/auth_provider.dart` | Auth state + session management |
+| 7 | `lib/providers/cart_provider.dart` | Cart state + local management |
+| 8 | `lib/providers/chat_provider.dart` | Chat state + messages |
+| 9 | `lib/providers/wallet_provider.dart` | Wallet FutureProvider |
+| 10 | `lib/providers/dashboard_provider.dart` | Seller statistics + top products |
+| 11 | `lib/providers/profile_provider.dart` | Profile update notifier |
+| 12 | `lib/providers/theme_provider.dart` | Theme mode management |
+| 13 | `lib/data/services/auth_service.dart` | Login/register/verify |
+| 14 | `lib/data/services/product_service.dart` | Product CRUD + recommendations |
+| 15 | `lib/data/services/cart_service.dart` | Cart CRUD + quantity management |
+| 16 | `lib/data/services/order_service.dart` | Full order lifecycle + VNPay |
+| 17 | `lib/data/services/shipping_service.dart` | Province/District/Ward + fee calculation |
+| 18 | `lib/data/services/seller_service.dart` | Seller registration + shop management |
+| 19 | `lib/data/services/dashboard_service.dart` | Seller statistics + top products |
+| 20 | `lib/data/services/promotion_service.dart` | Flash sale + deals + banners |
+| 21 | `lib/data/services/review_service.dart` | Reviews + stats + submit |
+| 22 | `lib/data/services/kyc_service.dart` | KYC submission |
+| 23 | `lib/data/services/chat_service.dart` | Chat + messages |
+| 24 | `lib/data/services/report_service.dart` | Report CRUD |
+| 25 | `lib/screens/home/home_screen.dart` | Trang chu + banners + product grid |
+| 26 | `lib/screens/products/product_detail_screen.dart` | Chi tiet san pham + reviews |
+| 27 | `lib/screens/user/checkout/checkout_screen.dart` | Thanh toan + VNPay |
+| 28 | `lib/screens/user/orders/order_list_screen.dart` | Danh sach don hang |
+| 29 | `lib/screens/user/profile/profile_screen.dart` | Profile + menu |
+| 30 | `lib/screens/user/seller/seller_dashboard_screen.dart` | Seller dashboard |
+| 31 | `pubspec.yaml` | 16 dependencies |
+| 32 | `.env` | API_BASE_URL=http://localhost:8080 |
+| 33 | `README.md` | Tai lieu phat trien chi tiet |
 
 ---
 
-*Tai lieu nay duoc tao tu dong boi AI, tom tat tat ca cac file trong du an Ecommerce Mobile (Flutter).*
-*So luong file: 87 files. So luong code: ~15,000+ dong Dart.*
-#   e c o m m e r c e - M o b i l e  
- 
+*Tai lieu nay duoc cap nhat chinh xac theo code thuc te cua project Ecommerce Mobile (Flutter).*
+*Tong so file: 87. Tong so code: ~15,699 dong Dart.*
+*Cap nhat lan cuoi: 2026-06-11*
