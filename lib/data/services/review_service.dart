@@ -6,7 +6,7 @@ class ReviewService {
   ReviewService();
 
   Future<ReviewPage> getProductReviews(
-    int productId, {
+    String productId, {
     int page = 0,
     int size = 5,
     int? rating,
@@ -30,7 +30,7 @@ class ReviewService {
     }
   }
 
-  Future<ReviewStats> getProductReviewStats(int productId) async {
+  Future<ReviewStats> getProductReviewStats(String productId) async {
     try {
       final response = await apiClient.get('/api/v1/review/products/$productId/reviews/stats');
       return ReviewStats.fromJson(response.data as Map<String, dynamic>);
@@ -40,7 +40,7 @@ class ReviewService {
   }
 
   Future<void> submitReview({
-    required int productId,
+    required String productId,
     required int rating,
     String? comment,
     List<String>? imagePaths,

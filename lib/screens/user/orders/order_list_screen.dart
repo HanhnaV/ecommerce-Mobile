@@ -7,10 +7,10 @@ import '../../../core/utils/order_status.dart';
 import '../../../data/services/order_service.dart';
 import '../../../providers/theme_provider.dart';
 
-final _orderServiceProvider = Provider((_) => OrderService());
+final orderServiceProvider = Provider((_) => OrderService());
 
-final _ordersProvider = FutureProvider.autoDispose.family<OrderPage, String?>((ref, status) async {
-  final service = ref.watch(_orderServiceProvider);
+final ordersProvider = FutureProvider.autoDispose.family<OrderPage, String?>((ref, status) async {
+  final service = ref.watch(orderServiceProvider);
   return service.getMyOrders(status: status);
 });
 
@@ -37,7 +37,7 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
     final isDark = themeState.isDark;
-    final ordersAsync = ref.watch(_ordersProvider(_selectedStatus));
+    final ordersAsync = ref.watch(ordersProvider(_selectedStatus));
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
@@ -90,7 +90,7 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    ref.invalidate(_ordersProvider(_selectedStatus));
+                    ref.invalidate(ordersProvider(_selectedStatus));
                   },
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
@@ -118,7 +118,7 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => ref.invalidate(_ordersProvider(_selectedStatus)),
+                      onPressed: () => ref.invalidate(ordersProvider(_selectedStatus)),
                       child: const Text('Thu lai'),
                     ),
                   ],
@@ -209,7 +209,7 @@ class _OrderCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: status.color.withValues(alpha: 0.15),
+                      color: status.color.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

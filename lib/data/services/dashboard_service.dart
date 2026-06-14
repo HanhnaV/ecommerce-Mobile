@@ -14,7 +14,7 @@ class DashboardService {
     }
   }
 
-  Future<List<TopProduct>> getTopProducts(int shopId, {int limit = 5}) async {
+  Future<List<TopProduct>> getTopProducts(String shopId, {int limit = 5}) async {
     try {
       final response = await apiClient.get(
         '/api/v1/order/shops/$shopId/top-products',

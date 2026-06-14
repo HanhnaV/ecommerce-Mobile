@@ -47,21 +47,21 @@ class CartNotifier extends StateNotifier<CartState> {
     _recalculate();
   }
 
-  void removeById(int id) {
+  void removeById(String id) {
     state = state.copyWith(
       items: state.items.where((i) => i.id != id).toList(),
     );
     _recalculate();
   }
 
-  void removeItem(int productId) {
+  void removeItem(String productId) {
     state = state.copyWith(
       items: state.items.where((i) => i.productId != productId).toList(),
     );
     _recalculate();
   }
 
-  void updateQuantityById(int id, int quantity) {
+  void updateQuantityById(String id, int quantity) {
     if (quantity <= 0) {
       removeById(id);
       return;
@@ -76,7 +76,7 @@ class CartNotifier extends StateNotifier<CartState> {
     _recalculate();
   }
 
-  void updateQuantity(int productId, int quantity) {
+  void updateQuantity(String productId, int quantity) {
     if (quantity <= 0) {
       removeItem(productId);
       return;

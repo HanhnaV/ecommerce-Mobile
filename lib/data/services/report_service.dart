@@ -32,7 +32,7 @@ class ReportService {
     }
   }
 
-  Future<Report> getReportById(int reportId) async {
+  Future<Report> getReportById(String reportId) async {
     try {
       final response = await apiClient.get('/api/v1/report/$reportId');
       return Report.fromJson(response.data as Map<String, dynamic>);

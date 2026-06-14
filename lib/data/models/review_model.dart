@@ -1,6 +1,6 @@
 class ReviewModel {
-  final int id;
-  final int userId;
+  final String id;
+  final String userId;
   final String? userFullName;
   final String? userAvatarUrl;
   final int rating;
@@ -23,11 +23,11 @@ class ReviewModel {
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewModel(
-      id: json['id'] as int,
-      userId: json['userId'] as int,
+      id: json['id'].toString(),
+      userId: json['userId'].toString(),
       userFullName: json['userFullName'] as String?,
       userAvatarUrl: json['userAvatarUrl'] as String?,
-      rating: json['rating'] as int,
+      rating: (json['rating'] as num?)?.toInt() ?? 0,
       comment: json['comment'] as String?,
       imageUrls: (json['imageUrls'] as List<dynamic>?)
               ?.map((e) => e.toString())

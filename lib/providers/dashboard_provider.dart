@@ -11,7 +11,7 @@ final sellerStatisticsProvider = FutureProvider.autoDispose<SellerStatistics>((r
   return service.getSellerStatistics();
 });
 
-final topProductsProvider = FutureProvider.autoDispose.family<List<TopProduct>, int>((ref, shopId) async {
+final topProductsProvider = FutureProvider.autoDispose.family<List<TopProduct>, String>((ref, shopId) async {
   final service = ref.watch(dashboardServiceProvider);
   return service.getTopProducts(shopId);
 });

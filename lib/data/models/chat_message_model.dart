@@ -1,6 +1,6 @@
 class ChatMessage {
-  final int id;
-  final int conversationId;
+  final String id;
+  final String conversationId;
   final String content;
   final String senderType;
   final DateTime createdAt;
@@ -21,12 +21,12 @@ class ChatMessage {
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
-      id: json['id'] as int,
-      conversationId: json['conversationId'] as int? ?? 0,
+      id: json['id'].toString(),
+      conversationId: json['conversationId']?.toString() ?? '',
       content: json['content'] as String? ?? '',
       senderType: json['senderType'] as String? ?? 'USER',
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
       isRead: json['isRead'] as bool? ?? false,
     );
@@ -44,8 +44,8 @@ class ChatMessage {
   }
 
   ChatMessage copyWith({
-    int? id,
-    int? conversationId,
+    String? id,
+    String? conversationId,
     String? content,
     String? senderType,
     DateTime? createdAt,
@@ -63,7 +63,7 @@ class ChatMessage {
 }
 
 class Conversation {
-  final int id;
+  final String id;
   final String userId;
   final String status;
   final DateTime createdAt;
@@ -83,17 +83,17 @@ class Conversation {
 
   factory Conversation.fromJson(Map<String, dynamic> json) {
     return Conversation(
-      id: json['id'] as int,
-      userId: json['userId'] as String? ?? '',
+      id: json['id'].toString(),
+      userId: json['userId']?.toString() ?? '',
       status: json['status'] as String? ?? 'OPEN',
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
       lastMessageAt: json['lastMessageAt'] != null
-          ? DateTime.parse(json['lastMessageAt'] as String)
+          ? DateTime.tryParse(json['lastMessageAt'] as String)
           : null,
       lastMessage: json['lastMessage'] as String?,
-      unreadCount: json['unreadCount'] as int? ?? 0,
+      unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
     );
   }
 }

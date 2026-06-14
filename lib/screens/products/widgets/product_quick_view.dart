@@ -42,12 +42,12 @@ class _ProductQuickViewState extends ConsumerState<ProductQuickView> {
     setState(() => _addingToCart = true);
     try {
       final cartItem = CartItem(
-        id: 0,
+        id: "0",
         productId: widget.product.id,
         name: widget.product.name,
         price: widget.product.basePrice,
         quantity: _quantity,
-        shopId: widget.product.shopId ?? 0,
+        shopId: (widget.product.shopId ?? 0).toString(),
         shopName: widget.product.shopName ?? '',
         imageUrl: widget.product.thumbnailUrl,
       );
