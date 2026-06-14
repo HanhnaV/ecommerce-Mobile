@@ -47,7 +47,8 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
     final addr = widget.address;
     _nameController = TextEditingController(text: addr?.receiverName ?? '');
     _phoneController = TextEditingController(text: addr?.receiverPhone ?? '');
-    _addressLineController = TextEditingController(text: addr?.addressLine ?? '');
+    _addressLineController =
+        TextEditingController(text: addr?.addressLine ?? '');
     _isDefault = addr?.isDefault ?? false;
     _loadProvinces();
     if (addr != null) {
@@ -60,7 +61,7 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
       final provinces = await _shippingService.getProvinces();
       final province = provinces.firstWhere(
         (p) => p.name.toLowerCase() == addr.city.toLowerCase(),
-        orElse: () => const Province(id: "0", name: ''),
+        orElse: () => const Province(id: 0, name: ''),
       );
       if (province.id != 0 && mounted) {
         setState(() => _selectedProvince = province);
@@ -68,15 +69,15 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
 
         final district = _districts.firstWhere(
           (d) => d.name.toLowerCase() == addr.district.toLowerCase(),
-          orElse: () => const District(id: "1", name: '', provinceId: "0"),
+          orElse: () => const District(id: 0, name: '', provinceId: 0),
         );
-        if (district.id != 0 && mounted) {
+        if (district.id != 0) {
           setState(() => _selectedDistrict = district);
           await _loadWards(district.id);
 
           final ward = _wards.firstWhere(
             (w) => w.name.toLowerCase() == addr.ward.toLowerCase(),
-            orElse: () => const Ward(code: '', name: '', districtId: "0"),
+            orElse: () => const Ward(code: '', name: ''),
           );
           if (mounted) setState(() => _selectedWard = ward);
         }
@@ -98,13 +99,16 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
       final list = await _shippingService.getProvinces();
       if (mounted) setState(() => _provinces = list);
     } catch (e) {
-      if (mounted) Fluttertoast.showToast(msg: 'Khong the tai danh sach tinh/thanh', backgroundColor: AppColors.error);
+      if (mounted)
+        Fluttertoast.showToast(
+            msg: 'Khong the tai danh sach tinh/thanh',
+            backgroundColor: AppColors.error);
     } finally {
       if (mounted) setState(() => _loadingProvinces = false);
     }
   }
 
-  Future<void> _loadDistricts(String provinceId) async {
+  Future<void> _loadDistricts(int provinceId) async {
     setState(() {
       _loadingDistricts = true;
       _selectedDistrict = null;
@@ -115,13 +119,16 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
       final list = await _shippingService.getDistricts(provinceId);
       if (mounted) setState(() => _districts = list);
     } catch (e) {
-      if (mounted) Fluttertoast.showToast(msg: 'Khong the tai danh sach quan/huyen', backgroundColor: AppColors.error);
+      if (mounted)
+        Fluttertoast.showToast(
+            msg: 'Khong the tai danh sach quan/huyen',
+            backgroundColor: AppColors.error);
     } finally {
       if (mounted) setState(() => _loadingDistricts = false);
     }
   }
 
-  Future<void> _loadWards(String districtId) async {
+  Future<void> _loadWards(int districtId) async {
     setState(() {
       _loadingWards = true;
       _selectedWard = null;
@@ -130,7 +137,10 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
       final list = await _shippingService.getWards(districtId);
       if (mounted) setState(() => _wards = list);
     } catch (e) {
-      if (mounted) Fluttertoast.showToast(msg: 'Khong the tai danh sach phuong/xa', backgroundColor: AppColors.error);
+      if (mounted)
+        Fluttertoast.showToast(
+            msg: 'Khong the tai danh sach phuong/xa',
+            backgroundColor: AppColors.error);
     } finally {
       if (mounted) setState(() => _loadingWards = false);
     }
@@ -139,8 +149,12 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_selectedProvince == null || _selectedDistrict == null || _selectedWard == null) {
-      Fluttertoast.showToast(msg: 'Vui long chon day du tinh/quan/phuong', backgroundColor: AppColors.error);
+    if (_selectedProvince == null ||
+        _selectedDistrict == null ||
+        _selectedWard == null) {
+      Fluttertoast.showToast(
+          msg: 'Vui long chon day du tinh/quan/phuong',
+          backgroundColor: AppColors.error);
       return;
     }
 
@@ -168,7 +182,9 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
         await _addressService.createAddress(addr);
         final created = await _addressService.listMyAddresses();
         final latest = created.firstWhere(
-          (a) => a.receiverName == addr.receiverName && a.receiverPhone == addr.receiverPhone,
+          (a) =>
+              a.receiverName == addr.receiverName &&
+              a.receiverPhone == addr.receiverPhone,
           orElse: () => addr,
         );
         if (_isDefault && latest.id != null) {
@@ -177,12 +193,14 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
       }
 
       if (mounted) {
-        Fluttertoast.showToast(msg: _isEditing ? 'Cap nhat dia chi thanh cong!' : 'Them dia chi thanh cong!');
-        context.pop();
+        Fluttertoast.showToast(msg: _isEditing ? 'Cập nhật thành công!' : 'Thêm thành công!');
+        context.pop(true);
       }
     } catch (e) {
       if (mounted) {
-        Fluttertoast.showToast(msg: e.toString().replaceFirst('Exception: ', ''), backgroundColor: AppColors.error);
+        Fluttertoast.showToast(
+            msg: e.toString().replaceFirst('Exception: ', ''),
+            backgroundColor: AppColors.error);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -195,7 +213,8 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
     final isDark = themeState.isDark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(_isEditing ? 'Chinh sua dia chi' : 'Them dia chi moi'),
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
@@ -209,21 +228,28 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
           children: [
             _buildSectionTitle('Thong tin nguoi nhan', isDark),
             const SizedBox(height: 12),
-            _textField(_nameController, 'Ho va ten nguoi nhan', Icons.person, isDark,
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Khong duoc de trong' : null),
+            _textField(
+                _nameController, 'Ho va ten nguoi nhan', Icons.person, isDark,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Khong duoc de trong'
+                    : null),
             const SizedBox(height: 12),
-            _textField(_phoneController, 'So dien thoai', Icons.phone, isDark, keyboardType: TextInputType.phone,
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Khong duoc de trong';
-                final phoneRegex = RegExp(r'^(?:\+84|0)(3|5|7|8|9)\d{8}$');
-                if (!phoneRegex.hasMatch(v.trim())) return 'So dien thoai khong hop le';
-                return null;
-              }),
+            _textField(_phoneController, 'So dien thoai', Icons.phone, isDark,
+                keyboardType: TextInputType.phone, validator: (v) {
+              if (v == null || v.trim().isEmpty) return 'Khong duoc de trong';
+              final phoneRegex = RegExp(r'^(?:\+84|0)(3|5|7|8|9)\d{8}$');
+              if (!phoneRegex.hasMatch(v.trim()))
+                return 'So dien thoai khong hop le';
+              return null;
+            }),
             const SizedBox(height: 24),
             _buildSectionTitle('Dia chi giao hang', isDark),
             const SizedBox(height: 12),
-            _textField(_addressLineController, 'Dia chi cu the (so nha, duong)', Icons.home, isDark,
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Khong duoc de trong' : null),
+            _textField(_addressLineController, 'Dia chi cu the (so nha, duong)',
+                Icons.home, isDark,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Khong duoc de trong'
+                    : null),
             const SizedBox(height: 12),
             _dropdownField<Province>(
               label: 'Tinh / Thanh pho',
@@ -277,7 +303,9 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: Text('Dat lam dia chi mac dinh', style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+              title: Text('Dat lam dia chi mac dinh',
+                  style:
+                      TextStyle(color: isDark ? Colors.white : Colors.black)),
               value: _isDefault,
               onChanged: (v) => setState(() => _isDefault = v),
               activeColor: AppColors.primary,
@@ -292,10 +320,15 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 child: _saving
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
                     : Text(_isEditing ? 'Luu thay doi' : 'Them dia chi'),
               ),
             ),
@@ -331,12 +364,16 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
       style: TextStyle(color: isDark ? Colors.white : Colors.black),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+        prefixIcon: Icon(icon,
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+        labelStyle: TextStyle(
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          borderSide: BorderSide(
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -368,12 +405,16 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
       value: value,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+        prefixIcon: Icon(icon,
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+        labelStyle: TextStyle(
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          borderSide: BorderSide(
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -382,21 +423,27 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
         filled: true,
         fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
         suffixIcon: isLoading
-            ? const SizedBox(width: 20, height: 20, child: Padding(
-                padding: EdgeInsets.all(12),
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ))
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: Padding(
+                  padding: EdgeInsets.all(12),
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ))
             : null,
       ),
       dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
       style: TextStyle(color: isDark ? Colors.white : Colors.black),
-      items: items.map((item) => DropdownMenuItem<T>(
-        value: item,
-        child: Text(itemLabel(item), style: TextStyle(
-          fontSize: 14,
-          color: isDark ? Colors.white : Colors.black,
-        )),
-      )).toList(),
+      items: items
+          .map((item) => DropdownMenuItem<T>(
+                value: item,
+                child: Text(itemLabel(item),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black,
+                    )),
+              ))
+          .toList(),
       onChanged: enabled ? onChanged : null,
       validator: (v) => v == null ? 'Vui long chon $label' : null,
     );
