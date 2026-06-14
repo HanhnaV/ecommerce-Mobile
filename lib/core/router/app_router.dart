@@ -36,7 +36,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isAuth = authState.isAuthenticated;
       final location = state.uri.path;
 
-      final publicRoutes = ['/login', '/register', '/verify', '/payment-result'];
+      final publicRoutes = ['/login', '/register', '/verify'];
       final isPublicRoute = publicRoutes.contains(location);
 
       if (!isAuth && !isPublicRoute) return '/login';
@@ -102,9 +102,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/payment-result',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final orderId = extra?['orderId']?.toString() ?? '';
-          final params = (extra?['params'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v.toString())) ?? <String, String>{};
-          return PaymentResultScreen(orderId: orderId, params: params);
+          var orderId = extra?['orderId']?.toString() ?? '';
+          if (orderId.isEmpty) {
+            orderId = state.uri.queryParameters['orderId'] ?? '';
+          }
+
+          var params = (extra?['params'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v.toString())) ?? <String, String>{};
+          if (params.isEmpty) {
+            params = state.uri.queryParameters;
+          }
+
+          var rawQuery = extra?['rawQuery'] as String? ?? '';
+          if (rawQuery.isEmpty) {
+            rawQuery = state.uri.query;
+          }
+
+          return PaymentResultScreen(
+            orderId: orderId,
+            params: params,
+            rawQuery: rawQuery,
+          );
         },
       ),
       GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen()),

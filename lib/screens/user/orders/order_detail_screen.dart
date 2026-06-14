@@ -189,6 +189,31 @@ class OrderDetailScreen extends ConsumerWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            Text(
+              address.receiverName,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              address.receiverPhone,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${address.addressLine}, ${address.ward}, ${address.district}, ${address.city}',
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+              ),
+            ),
           ],
         ),
       ),
@@ -368,8 +393,9 @@ class OrderDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildPriceCard(OrderDetail order, bool isDark) {
-    final subtotal = order.totalAmount;
+    final subtotal = order.subtotal;
     final shipping = order.shippingFee;
+    final total = order.total;
 
     return Card(
       color: isDark ? const Color(0xFF1E293B) : Colors.white,
@@ -382,7 +408,7 @@ class OrderDetailScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             _priceRow('Phi van chuyen', shipping, isDark),
             Divider(height: 20, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-            _priceRow('Tong thanh toan', subtotal + shipping, isDark, isBold: true),
+            _priceRow('Tong thanh toan', total, isDark, isBold: true),
           ],
         ),
       ),
@@ -451,7 +477,8 @@ class OrderDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildBottomBar(BuildContext context, WidgetRef ref, OrderDetail order, OrderStatus status, bool isDark) {
-    final canCancel = status == OrderStatus.pending;
+    // Hidden because backend cancel API is shop-only
+    const canCancel = false;
     final canConfirmReceive = status == OrderStatus.shipping;
 
     if (!canCancel && !canConfirmReceive) return const SizedBox.shrink();
