@@ -14,7 +14,7 @@ class ChatService {
     }
   }
 
-  Future<List<ChatMessage>> getMessages(int conversationId, {int page = 0, int size = 50}) async {
+  Future<List<ChatMessage>> getMessages(String conversationId, {int page = 0, int size = 50}) async {
     try {
       final response = await apiClient.get(
         '/api/v1/chat/$conversationId/messages',
@@ -27,7 +27,7 @@ class ChatService {
     }
   }
 
-  Future<ChatMessage> sendMessage(int conversationId, String content) async {
+  Future<ChatMessage> sendMessage(String conversationId, String content) async {
     try {
       final response = await apiClient.post(
         '/api/v1/chat/$conversationId/messages',
@@ -39,7 +39,7 @@ class ChatService {
     }
   }
 
-  Future<void> markAsRead(int conversationId, int messageId) async {
+  Future<void> markAsRead(String conversationId, String messageId) async {
     try {
       await apiClient.patch('/api/v1/chat/$conversationId/messages/$messageId/read');
     } on DioException catch (e) {

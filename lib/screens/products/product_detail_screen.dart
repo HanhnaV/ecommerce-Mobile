@@ -18,7 +18,7 @@ final _productService = ProductService();
 final _reviewService = ReviewService();
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
-  final int productId;
+  final String productId;
 
   const ProductDetailScreen({super.key, required this.productId});
 
@@ -129,12 +129,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     setState(() => _addingToCart = true);
     try {
       final cartItem = CartItem(
-        id: 0,
+        id: "0",
         productId: _product!.id,
         name: _product!.name,
         price: _product!.basePrice,
         quantity: _quantity,
-        shopId: _product!.shopId ?? 0,
+        shopId: (_product!.shopId ?? 0).toString(),
         shopName: _product!.shopName ?? '',
         imageUrl: _product!.thumbnailUrl,
       );
@@ -376,12 +376,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               }
               if (_product == null) return;
               final cartItem = CartItem(
-                id: 0,
+                id: "0",
                 productId: _product!.id,
                 name: _product!.name,
                 price: _product!.basePrice,
                 quantity: _quantity,
-                shopId: _product!.shopId ?? 0,
+                shopId: (_product!.shopId ?? 0).toString(),
                 shopName: _product!.shopName ?? '',
                 imageUrl: _product!.thumbnailUrl,
               );

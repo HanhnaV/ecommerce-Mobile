@@ -6,7 +6,7 @@ enum KycStatus {
 }
 
 class KycModel {
-  final int? id;
+  final String? id;
   final String? frontImageUrl;
   final String? backImageUrl;
   final String? selfieImageUrl;
@@ -30,7 +30,7 @@ class KycModel {
 
   factory KycModel.fromJson(Map<String, dynamic> json) {
     return KycModel(
-      id: json['id'] as int?,
+      id: json['id']?.toString(),
       frontImageUrl: json['frontImageUrl'] as String?,
       backImageUrl: json['backImageUrl'] as String?,
       selfieImageUrl: json['selfieImageUrl'] as String?,

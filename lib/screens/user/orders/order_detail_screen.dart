@@ -7,14 +7,15 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/order_status.dart';
 import '../../../data/services/order_service.dart';
 import '../../../providers/theme_provider.dart';
+import 'order_list_screen.dart';
 
-final _orderDetailProvider = FutureProvider.family<OrderDetail, int>((ref, orderId) async {
+final _orderDetailProvider = FutureProvider.family<OrderDetail, String>((ref, orderId) async {
   final service = OrderService();
   return service.getMyOrderById(orderId);
 });
 
 class OrderDetailScreen extends ConsumerWidget {
-  final int orderId;
+  final String orderId;
 
   const OrderDetailScreen({super.key, required this.orderId});
 
@@ -127,7 +128,7 @@ class OrderDetailScreen extends ConsumerWidget {
     }
 
     return Card(
-      color: status.color.withValues(alpha: 0.1),
+      color: status.color.withOpacity(0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,
       child: Padding(
@@ -206,7 +207,7 @@ class OrderDetailScreen extends ConsumerWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.store, color: AppColors.primary),
@@ -466,7 +467,7 @@ class OrderDetailScreen extends ConsumerWidget {
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -506,7 +507,7 @@ class OrderDetailScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmReceived(BuildContext context, WidgetRef ref, int orderId) async {
+  Future<void> _confirmReceived(BuildContext context, WidgetRef ref, String orderId) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -541,7 +542,7 @@ class OrderDetailScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _showCancelDialog(BuildContext context, WidgetRef ref, int orderId) async {
+  Future<void> _showCancelDialog(BuildContext context, WidgetRef ref, String orderId) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -563,7 +564,7 @@ class OrderDetailScreen extends ConsumerWidget {
       final service = OrderService();
       await service.cancelOrder(orderId);
       ref.invalidate(_orderDetailProvider(orderId));
-      ref.invalidate(_orderListProvider(null));
+      ref.invalidate(ordersProvider(null));
       if (context.mounted) {
         Fluttertoast.showToast(msg: 'Da huy don hang');
       }
@@ -577,8 +578,3 @@ class OrderDetailScreen extends ConsumerWidget {
     }
   }
 }
-
-final _orderListProvider = FutureProvider.family<OrderPage, String?>((ref, status) async {
-  final service = OrderService();
-  return service.getMyOrders(status: status);
-});

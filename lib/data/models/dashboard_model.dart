@@ -60,7 +60,7 @@ class SellerStatistics {
 }
 
 class TopProduct {
-  final int id;
+  final String id;
   final String name;
   final double price;
   final String? imageUrl;
@@ -78,12 +78,12 @@ class TopProduct {
 
   factory TopProduct.fromJson(Map<String, dynamic> json) {
     return TopProduct(
-      id: json['id'] as int? ?? 0,
+      id: json['id']?.toString() ?? '',
       name: json['name'] as String? ?? '',
       price: _parseDouble(json['price']),
       imageUrl: json['imageUrl'] as String?,
-      soldCount: json['soldCount'] as int? ?? 0,
-      orderCount: json['orderCount'] as int? ?? 0,
+      soldCount: (json['soldCount'] as num?)?.toInt() ?? 0,
+      orderCount: (json['orderCount'] as num?)?.toInt() ?? 0,
     );
   }
 

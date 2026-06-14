@@ -32,10 +32,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-
     try {
       final service = ref.read(authServiceProvider);
       final result = await service.login(
@@ -45,17 +44,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       if (!mounted) return;
 
-      final goRouter = context.go;
       await ref.read(authStateProvider.notifier).login(result.token, result.user);
       ref.read(cartProvider.notifier).clear();
 
       Fluttertoast.showToast(
-        msg: 'Chao man tro lai, ${result.user.fullName}!',
+        msg: 'Chao mung tro lai, ${result.user.fullName}!',
         backgroundColor: AppColors.success,
         textColor: Colors.white,
       );
 
-      goRouter('/');
+      if (mounted) context.go('/');
     } catch (e) {
       if (!mounted) return;
       Fluttertoast.showToast(
@@ -73,9 +71,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final themeState = ref.watch(themeProvider);
     final isDark = themeState.isDark;
 
-    return AuthLayout(
-      title: 'Dang nhap tai khoan',
-      subtitle: 'Nhap ten dang nhap de tiep tuc',
+    return Form(
+      key: _formKey,
+      child: AuthLayout(
+        title: 'Dang nhap tai khoan',
+        subtitle: 'Nhap ten dang nhap de tiep tuc',
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -170,7 +170,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           onPressed: _isLoading ? null : _handleLogin,
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.primary,
-            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
+            disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
@@ -196,6 +196,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
         ),
       ],
+    ),
     );
   }
 }

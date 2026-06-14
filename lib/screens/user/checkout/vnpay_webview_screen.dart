@@ -8,7 +8,7 @@ final _orderService = OrderService();
 
 class VnpayWebViewScreen extends ConsumerStatefulWidget {
   final String paymentUrl;
-  final int orderId;
+  final String orderId;
 
   const VnpayWebViewScreen({
     super.key,

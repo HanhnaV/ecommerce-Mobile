@@ -57,7 +57,7 @@ class SellerService {
     }
   }
 
-  Future<List<ShopProduct>> getShopProducts(int shopId, {int page = 0, int size = 20}) async {
+  Future<List<ShopProduct>> getShopProducts(String shopId, {int page = 0, int size = 20}) async {
     try {
       final response = await apiClient.get(
         '/api/v1/seller/$shopId/products',
@@ -70,7 +70,7 @@ class SellerService {
     }
   }
 
-  Future<SellerOrderPage> getShopOrders(int shopId, {String? status, int page = 0, int size = 20}) async {
+  Future<SellerOrderPage> getShopOrders(String shopId, {String? status, int page = 0, int size = 20}) async {
     try {
       final params = <String, dynamic>{'page': page, 'size': size};
       if (status != null) params['status'] = status;
@@ -81,7 +81,7 @@ class SellerService {
     }
   }
 
-  Future<void> updateOrderStatus(int orderId, String status) async {
+  Future<void> updateOrderStatus(String orderId, String status) async {
     try {
       await apiClient.patch('/api/v1/seller/orders/$orderId/status', data: {'status': status});
     } on DioException catch (e) {
@@ -89,7 +89,7 @@ class SellerService {
     }
   }
 
-  Future<void> replyToReview(int reviewId, String reply) async {
+  Future<void> replyToReview(String reviewId, String reply) async {
     try {
       await apiClient.post('/api/v1/seller/reviews/$reviewId/reply', data: {'reply': reply});
     } on DioException catch (e) {
@@ -113,8 +113,8 @@ class SellerService {
 }
 
 class SellerShop {
-  final int id;
-  final int userId;
+  final String id;
+  final String userId;
   final String shopName;
   final String? shopDescription;
   final String? shopAvatarUrl;
@@ -143,8 +143,8 @@ class SellerShop {
 
   factory SellerShop.fromJson(Map<String, dynamic> json) {
     return SellerShop(
-      id: json['id'] as int,
-      userId: json['userId'] as int,
+      id: json['id'].toString(),
+      userId: json['userId'].toString(),
       shopName: json['shopName'] as String,
       shopDescription: json['shopDescription'] as String?,
       shopAvatarUrl: json['shopAvatarUrl'] as String?,
@@ -153,14 +153,14 @@ class SellerShop {
       businessAddress: json['businessAddress'] as String?,
       status: json['status'] as String? ?? 'PENDING',
       rating: (json['rating'] as num?)?.toDouble(),
-      totalProducts: json['totalProducts'] as int?,
-      totalOrders: json['totalOrders'] as int?,
+      totalProducts: (json['totalProducts'] as num?)?.toInt(),
+      totalOrders: (json['totalOrders'] as num?)?.toInt(),
     );
   }
 }
 
 class ShopProduct {
-  final int id;
+  final String id;
   final String name;
   final double price;
   final String? imageUrl;
@@ -178,11 +178,11 @@ class ShopProduct {
 
   factory ShopProduct.fromJson(Map<String, dynamic> json) {
     return ShopProduct(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       name: json['name'] as String? ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       imageUrl: json['imageUrl'] as String?,
-      stock: json['stock'] as int? ?? 0,
+      stock: (json['stock'] as num?)?.toInt() ?? 0,
       status: json['status'] as String? ?? 'ACTIVE',
     );
   }
@@ -207,15 +207,15 @@ class SellerOrderPage {
               ?.map((e) => SellerOrderDetail.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      totalPages: json['totalPages'] as int? ?? 0,
-      totalElements: json['totalElements'] as int? ?? 0,
-      number: json['number'] as int? ?? 0,
+      totalPages: (json['totalPages'] as num?)?.toInt() ?? 0,
+      totalElements: (json['totalElements'] as num?)?.toInt() ?? 0,
+      number: (json['number'] as num?)?.toInt() ?? 0,
     );
   }
 }
 
 class SellerOrderDetail {
-  final int id;
+  final String id;
   final String orderCode;
   final String status;
   final String? customerName;
@@ -241,7 +241,7 @@ class SellerOrderDetail {
 
   factory SellerOrderDetail.fromJson(Map<String, dynamic> json) {
     return SellerOrderDetail(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       orderCode: json['orderCode'] as String? ?? '',
       status: json['status'] as String? ?? '',
       customerName: json['customerName'] as String?,
@@ -253,13 +253,13 @@ class SellerOrderDetail {
               ?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) : null,
     );
   }
 }
 
 class OrderItem {
-  final int productId;
+  final String productId;
   final String productName;
   final double unitPrice;
   final int quantity;
@@ -277,10 +277,10 @@ class OrderItem {
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return OrderItem(
-      productId: json['productId'] as int,
+      productId: json['productId'].toString(),
       productName: json['productName'] as String? ?? '',
       unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
-      quantity: json['quantity'] as int,
+      quantity: (json['quantity'] as num?)?.toInt() ?? 0,
       totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
       imageUrl: json['imageUrl'] as String?,
     );

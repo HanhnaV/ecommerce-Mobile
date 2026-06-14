@@ -140,7 +140,7 @@ class _ProductFilterModalState extends State<ProductFilterModal> {
                   runSpacing: 8,
                   children: [
                     _categoryChip(null, 'Tat ca', isDark),
-                    ...widget.categories.map((c) => _categoryChip(c.id.toString(), c.name, isDark)),
+                    ...widget.categories.map((c) => _categoryChip(c.id, c.name, isDark)),
                   ],
                 ),
                 const SizedBox(height: 24),

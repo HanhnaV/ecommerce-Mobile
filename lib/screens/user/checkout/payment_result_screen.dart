@@ -7,7 +7,7 @@ import '../../../providers/theme_provider.dart';
 final _orderService = OrderService();
 
 class PaymentResultScreen extends ConsumerStatefulWidget {
-  final int orderId;
+  final String orderId;
   final Map<String, String> params;
 
   const PaymentResultScreen({

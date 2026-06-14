@@ -19,7 +19,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   CartApiResponse? _cart;
   bool _loading = true;
   String? _error;
-  final Map<int, bool> _updatingItems = {};
+  final Map<String, bool> _updatingItems = {};
 
   @override
   void initState() {
@@ -156,7 +156,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       return _buildEmptyCart(isDark);
     }
 
-    final grouped = <int, _ShopGroup>{};
+    final grouped = <String, _ShopGroup>{};
     for (final item in items) {
       grouped.putIfAbsent(item.shopId, () => _ShopGroup(shopId: item.shopId, shopName: item.shopName));
       grouped[item.shopId]!.items.add(item);
@@ -501,7 +501,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 }
 
 class _ShopGroup {
-  final int shopId;
+  final String shopId;
   final String shopName;
   final List<CartApiItem> items = [];
 

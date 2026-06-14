@@ -36,7 +36,7 @@ class ProductService {
     }
   }
 
-  Future<ProductModel> getProductById(int productId) async {
+  Future<ProductModel> getProductById(String productId) async {
     try {
       final response = await apiClient.get('/api/v1/product/$productId');
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
@@ -59,7 +59,7 @@ class ProductService {
     }
   }
 
-  Future<List<ProductModel>> getSimilarProducts(int productId, {int limit = 8}) async {
+  Future<List<ProductModel>> getSimilarProducts(String productId, {int limit = 8}) async {
     try {
       final response = await apiClient.get(
         '/api/v1/product/$productId/similar',

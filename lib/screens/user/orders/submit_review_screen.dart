@@ -11,7 +11,7 @@ import '../../../data/models/review_model.dart';
 import '../../../providers/theme_provider.dart';
 
 class SubmitReviewScreen extends ConsumerStatefulWidget {
-  final int productId;
+  final String productId;
   final String productName;
   final String? productImageUrl;
 
@@ -355,7 +355,7 @@ class _SubmitReviewScreenState extends ConsumerState<SubmitReviewScreen> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
+                  disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
                 ),
                 child: _isSubmitting
                     ? const SizedBox(
