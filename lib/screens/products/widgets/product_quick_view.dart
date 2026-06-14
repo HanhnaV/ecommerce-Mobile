@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/models/cart_model.dart';
+import '../../../data/services/cart_service.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/cart_provider.dart';
+
+final _cartService = CartService();
 
 class ProductQuickView extends ConsumerStatefulWidget {
   final ProductModel product;
@@ -41,17 +44,11 @@ class _ProductQuickViewState extends ConsumerState<ProductQuickView> {
 
     setState(() => _addingToCart = true);
     try {
-      final cartItem = CartItem(
-        id: "0",
+      final response = await _cartService.addToCart(
         productId: widget.product.id,
-        name: widget.product.name,
-        price: widget.product.basePrice,
         quantity: _quantity,
-        shopId: (widget.product.shopId ?? 0).toString(),
-        shopName: widget.product.shopName ?? '',
-        imageUrl: widget.product.thumbnailUrl,
       );
-      ref.read(cartProvider.notifier).addItem(cartItem);
+      ref.read(cartProvider.notifier).setFromApi(response);
       if (mounted) {
         Navigator.pop(context);
         Fluttertoast.showToast(

@@ -26,6 +26,7 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
 
   static const _tabs = [
     (null, 'Tat ca'),
+    ('PENDING_PAYMENT', 'Cho thanh toan'),
     ('PENDING', 'Cho xac nhan'),
     ('CONFIRMED', 'Da xac nhan'),
     ('SHIPPING', 'Dang giao'),
@@ -326,7 +327,7 @@ class _OrderCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        _formatCurrency(order.totalAmount + order.shippingFee),
+                        _formatCurrency(order.total),
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
