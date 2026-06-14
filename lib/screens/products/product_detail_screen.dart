@@ -8,6 +8,7 @@ import '../../data/models/review_model.dart';
 import '../../data/models/cart_model.dart';
 import '../../data/services/product_service.dart';
 import '../../data/services/review_service.dart';
+import '../../data/services/cart_service.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
@@ -16,6 +17,7 @@ import '../../widgets/product_card.dart';
 
 final _productService = ProductService();
 final _reviewService = ReviewService();
+final _cartService = CartService();
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   final String productId;
@@ -32,6 +34,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   String? _error;
   int _quantity = 1;
   bool _addingToCart = false;
+  bool _buyingNow = false;
   List<ProductModel> _similarProducts = [];
   bool _similarLoading = true;
 
@@ -128,17 +131,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
     setState(() => _addingToCart = true);
     try {
-      final cartItem = CartItem(
-        id: "0",
+      final response = await _cartService.addToCart(
         productId: _product!.id,
-        name: _product!.name,
-        price: _product!.basePrice,
         quantity: _quantity,
-        shopId: (_product!.shopId ?? 0).toString(),
-        shopName: _product!.shopName ?? '',
-        imageUrl: _product!.thumbnailUrl,
       );
-      ref.read(cartProvider.notifier).addItem(cartItem);
+      ref.read(cartProvider.notifier).setFromApi(response);
       Fluttertoast.showToast(
         msg: 'Da them $_quantity ${_product!.name} vao gio hang',
         backgroundColor: AppColors.success,
@@ -347,12 +344,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Widget _buildActionButtons(bool isDark) {
+    final isPending = _addingToCart || _buyingNow;
     return Row(
       children: [
         Expanded(
           flex: 2,
           child: ElevatedButton.icon(
-            onPressed: _addingToCart ? null : _handleAddToCart,
+            onPressed: isPending ? null : _handleAddToCart,
             icon: _addingToCart
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
                 : const Icon(Icons.shopping_cart_outlined),
@@ -368,28 +366,35 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: OutlinedButton(
-            onPressed: () async {
+            onPressed: isPending ? null : () async {
               final authState = ref.read(authStateProvider);
               if (!authState.isAuthenticated) {
                 Fluttertoast.showToast(msg: 'Vui long dang nhap de mua hang');
                 return;
               }
               if (_product == null) return;
-              final cartItem = CartItem(
-                id: "0",
-                productId: _product!.id,
-                name: _product!.name,
-                price: _product!.basePrice,
-                quantity: _quantity,
-                shopId: (_product!.shopId ?? 0).toString(),
-                shopName: _product!.shopName ?? '',
-                imageUrl: _product!.thumbnailUrl,
-              );
-              ref.read(cartProvider.notifier).addItem(cartItem);
-              if (_product!.shopId != null) {
-                context.push('/checkout', extra: {'shopId': _product!.shopId});
-              } else {
-                context.push('/cart');
+              setState(() => _buyingNow = true);
+              try {
+                final response = await _cartService.addToCart(
+                  productId: _product!.id,
+                  quantity: _quantity,
+                );
+                ref.read(cartProvider.notifier).setFromApi(response);
+                if (mounted) {
+                  if (_product!.shopId != null) {
+                    context.push('/checkout', extra: {'shopId': _product!.shopId});
+                  } else {
+                    context.push('/cart');
+                  }
+                }
+              } catch (e) {
+                Fluttertoast.showToast(
+                  msg: e.toString().replaceFirst('Exception: ', ''),
+                  backgroundColor: AppColors.error,
+                  textColor: Colors.white,
+                );
+              } finally {
+                if (mounted) setState(() => _buyingNow = false);
               }
             },
             style: OutlinedButton.styleFrom(
@@ -397,7 +402,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               side: const BorderSide(color: Color(0xFF2563EB)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Mua ngay'),
+            child: _buyingNow
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFF2563EB))))
+                : const Text('Mua ngay'),
           ),
         ),
       ],

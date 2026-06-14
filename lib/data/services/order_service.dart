@@ -33,12 +33,34 @@ class OrderService {
     }
   }
 
-  Future<void> verifyVnpayPayment(Map<String, String> params) async {
+  Future<void> verifyVnpayPayment({
+    Map<String, String>? params,
+    String? rawQuery,
+  }) async {
     try {
-      await apiClient.get(
-        '/api/v1/payment/vnpay/return',
-        queryParameters: params,
+      if (rawQuery != null && rawQuery.isNotEmpty) {
+        await apiClient.get('/api/v1/payment/vnpay/return?$rawQuery');
+      } else {
+        await apiClient.get(
+          '/api/v1/payment/vnpay/return',
+          queryParameters: params,
+        );
+      }
+    } on DioException catch (e) {
+      throw Exception(_extractError(e));
+    }
+  }
+
+  Future<CheckoutQuoteResponse> getCheckoutQuote({
+    required String shopId,
+    required String addressId,
+  }) async {
+    try {
+      final response = await apiClient.post(
+        '/api/v1/checkout/quote',
+        data: {'shopId': shopId, 'addressId': addressId},
       );
+      return CheckoutQuoteResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw Exception(_extractError(e));
     }
@@ -49,7 +71,28 @@ class OrderService {
       final params = <String, dynamic>{};
       if (status != null && status.isNotEmpty) params['status'] = status;
       final response = await apiClient.get('/api/v1/order/me', queryParameters: params);
-      return OrderPage.fromJson(response.data as Map<String, dynamic>);
+      
+      final data = response.data;
+      if (data is List) {
+        final content = data
+            .map((e) => OrderDetail.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return OrderPage(
+          content: content,
+          totalPages: 1,
+          totalElements: content.length,
+          number: 0,
+        );
+      } else if (data is Map<String, dynamic>) {
+        return OrderPage.fromJson(data);
+      } else {
+        return const OrderPage(
+          content: [],
+          totalPages: 0,
+          totalElements: 0,
+          number: 0,
+        );
+      }
     } on DioException catch (e) {
       throw Exception(_extractError(e));
     }
@@ -153,48 +196,91 @@ class OrderPage {
 
 class OrderDetail {
   final String id;
-  final String orderCode;
+  final String orderNumber;
   final String status;
   final String shopId;
   final String shopName;
-  final double totalAmount;
+  final double subtotal;
   final double shippingFee;
+  final double total;
   final String? notes;
   final List<OrderItem> items;
-  final AddressInfo? address;
+  final String? shippingName;
+  final String? shippingPhone;
+  final String? shippingAddress;
+  final String? shippingCity;
+  final String? shippingDistrict;
+  final String? shippingWard;
+  final int? shippingDistrictId;
+  final String? shippingWardCode;
+  final String? ghnOrderCode;
   final DateTime? createdAt;
 
   const OrderDetail({
     required this.id,
-    required this.orderCode,
+    required this.orderNumber,
     required this.status,
     required this.shopId,
     required this.shopName,
-    required this.totalAmount,
+    required this.subtotal,
     required this.shippingFee,
+    required this.total,
     this.notes,
     required this.items,
-    this.address,
+    this.shippingName,
+    this.shippingPhone,
+    this.shippingAddress,
+    this.shippingCity,
+    this.shippingDistrict,
+    this.shippingWard,
+    this.shippingDistrictId,
+    this.shippingWardCode,
+    this.ghnOrderCode,
     this.createdAt,
   });
+
+  String get orderCode => orderNumber;
+  double get totalAmount => total;
+
+  AddressInfo? get address {
+    if (shippingName == null && shippingAddress == null) return null;
+    return AddressInfo(
+      id: '',
+      receiverName: shippingName ?? '',
+      receiverPhone: shippingPhone ?? '',
+      addressLine: shippingAddress ?? '',
+      city: shippingCity ?? '',
+      district: shippingDistrict ?? '',
+      ward: shippingWard ?? '',
+      districtId: shippingDistrictId,
+      wardCode: shippingWardCode,
+    );
+  }
 
   factory OrderDetail.fromJson(Map<String, dynamic> json) {
     return OrderDetail(
       id: json['id'].toString(),
-      orderCode: json['orderCode'] as String? ?? '',
+      orderNumber: json['orderNumber'] as String? ?? json['orderCode'] as String? ?? '',
       status: json['status'] as String? ?? '',
       shopId: json['shopId'].toString(),
       shopName: json['shopName'] as String? ?? '',
-      totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
+      subtotal: (json['subtotal'] as num?)?.toDouble() ?? (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
       shippingFee: (json['shippingFee'] as num?)?.toDouble() ?? 0.0,
+      total: (json['total'] as num?)?.toDouble() ?? 0.0,
       notes: json['notes'] as String?,
       items: (json['items'] as List<dynamic>?)
               ?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      address: json['address'] != null
-          ? AddressInfo.fromJson(json['address'] as Map<String, dynamic>)
-          : null,
+      shippingName: json['shippingName'] as String?,
+      shippingPhone: json['shippingPhone'] as String?,
+      shippingAddress: json['shippingAddress'] as String?,
+      shippingCity: json['shippingCity'] as String?,
+      shippingDistrict: json['shippingDistrict'] as String?,
+      shippingWard: json['shippingWard'] as String?,
+      shippingDistrictId: (json['shippingDistrictId'] as num?)?.toInt(),
+      shippingWardCode: json['shippingWardCode']?.toString(),
+      ghnOrderCode: json['ghnOrderCode'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
@@ -208,7 +294,7 @@ class OrderItem {
   final double unitPrice;
   final int quantity;
   final double totalPrice;
-  final String? imageUrl;
+  final String? productImageUrl;
 
   const OrderItem({
     required this.productId,
@@ -216,8 +302,10 @@ class OrderItem {
     required this.unitPrice,
     required this.quantity,
     required this.totalPrice,
-    this.imageUrl,
+    this.productImageUrl,
   });
+
+  String? get imageUrl => productImageUrl;
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return OrderItem(
@@ -226,7 +314,7 @@ class OrderItem {
       unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
       quantity: (json['quantity'] as num?)?.toInt() ?? 0,
       totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
-      imageUrl: json['imageUrl'] as String?,
+      productImageUrl: json['productImageUrl'] as String? ?? json['imageUrl'] as String?,
     );
   }
 }
@@ -268,6 +356,20 @@ class AddressInfo {
       districtId: (json['districtId'] as num?)?.toInt(),
       wardCode: json['wardCode']?.toString(),
       isDefault: json['isDefault'] as bool? ?? false,
+    );
+  }
+}
+
+class CheckoutQuoteResponse {
+  final double shippingFee;
+  final double total;
+
+  const CheckoutQuoteResponse({required this.shippingFee, required this.total});
+
+  factory CheckoutQuoteResponse.fromJson(Map<String, dynamic> json) {
+    return CheckoutQuoteResponse(
+      shippingFee: (json['shippingFee'] as num?)?.toDouble() ?? 0.0,
+      total: (json['total'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }

@@ -3,17 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../data/services/order_service.dart';
 import '../../../providers/theme_provider.dart';
+import '../orders/order_list_screen.dart';
 
 final _orderService = OrderService();
 
 class PaymentResultScreen extends ConsumerStatefulWidget {
   final String orderId;
   final Map<String, String> params;
+  final String? rawQuery;
 
   const PaymentResultScreen({
     super.key,
     required this.orderId,
     required this.params,
+    this.rawQuery,
   });
 
   @override
@@ -24,36 +27,100 @@ class _PaymentResultScreenState extends ConsumerState<PaymentResultScreen> {
   String _status = 'loading';
   String _message = 'Dang xu ly ket qua thanh toan...';
   String? _transactionId;
+  bool _retrying = false;
 
   @override
   void initState() {
     super.initState();
+    // Guard: only require orderId, params can be empty for external browser payments
+    if (widget.orderId.isEmpty) {
+      _status = 'failed';
+      _message = 'Khong tim thay thong tin thanh toan.';
+      return;
+    }
     _verifyPayment();
   }
 
   Future<void> _verifyPayment() async {
-    try {
-      await _orderService.verifyVnpayPayment(widget.params);
-      final responseCode = widget.params['vnp_ResponseCode'];
-      final txnId = widget.params['vnp_TransactionNo'];
+    if (_retrying) return;
+    setState(() {
+      _status = 'loading';
+      _message = 'Dang xu ly ket qua thanh toan...';
+      _retrying = true;
+    });
 
-      if (responseCode == '00') {
-        setState(() {
-          _status = 'success';
-          _message = 'Thanh toan thanh cong!';
-          _transactionId = txnId;
-        });
-      } else {
-        setState(() {
-          _status = 'failed';
-          _message = _getResponseMessage(responseCode ?? '');
-        });
+    try {
+      bool isVerified = false;
+
+      // Try verifying via VNPay response parameters or raw query if they exist
+      if ((widget.rawQuery != null && widget.rawQuery!.isNotEmpty) || widget.params.isNotEmpty) {
+        try {
+          await _orderService.verifyVnpayPayment(
+            params: widget.params,
+            rawQuery: widget.rawQuery,
+          );
+          
+          String? responseCode = widget.params['vnp_ResponseCode'];
+          String? txnId = widget.params['vnp_TransactionNo'];
+
+          if (responseCode == null && widget.rawQuery != null && widget.rawQuery!.isNotEmpty) {
+            final qParams = Uri.splitQueryString(widget.rawQuery!);
+            responseCode = qParams['vnp_ResponseCode'];
+            txnId = qParams['vnp_TransactionNo'];
+          }
+
+          if (responseCode == '00') {
+            setState(() {
+              _status = 'success';
+              _message = 'Thanh toan thanh cong!';
+              _transactionId = txnId;
+            });
+            isVerified = true;
+          } else {
+            // VNPay officially returned failure code
+            setState(() {
+              _status = 'failed';
+              _message = _getResponseMessage(responseCode ?? '');
+            });
+            isVerified = true;
+          }
+        } catch (e) {
+          // If VNPay verification endpoint throws an error (e.g. invalid signature),
+          // fallback to checking the order state directly via backend.
+        }
+      }
+
+      // Fallback: check order status directly on the backend
+      if (!isVerified) {
+        final order = await _orderService.getMyOrderById(widget.orderId);
+        const successStatuses = {
+          'CONFIRMED',
+          'PROCESSING',
+          'SHIPPED',
+          'DELIVERED',
+          'SHIPPING',
+          'COMPLETED'
+        };
+
+        if (successStatuses.contains(order.status)) {
+          setState(() {
+            _status = 'success';
+            _message = 'Thanh toan thanh cong!';
+          });
+        } else {
+          setState(() {
+            _status = 'failed';
+            _message = 'Don hang chua duoc thanh toan (trang thai: ${order.status}).';
+          });
+        }
       }
     } catch (e) {
       setState(() {
-        _status = 'failed';
-        _message = 'Co loi xay ra khi xac thuc thanh toan.';
+        _status = 'error';
+        _message = 'Co loi xay ra khi xac thuc thanh toan. Vui long thu lai.';
       });
+    } finally {
+      _retrying = false;
     }
   }
 
@@ -80,16 +147,24 @@ class _PaymentResultScreenState extends ConsumerState<PaymentResultScreen> {
     final themeState = ref.watch(themeProvider);
     final isDark = themeState.isDark;
 
-    return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAF9),
-      appBar: AppBar(
-        title: const Text('Ket qua thanh toan'),
-        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-        foregroundColor: isDark ? Colors.white : const Color(0xFF1C1917),
-        elevation: 0,
-        automaticallyImplyLeading: false,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        // Prevent back navigation — force user to use the CTA buttons
+        context.go('/');
+      },
+      child: Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFFAFAF9),
+        appBar: AppBar(
+          title: const Text('Ket qua thanh toan'),
+          backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+          foregroundColor: isDark ? Colors.white : const Color(0xFF1C1917),
+          elevation: 0,
+          automaticallyImplyLeading: false,
+        ),
+        body: _buildBody(isDark),
       ),
-      body: _buildBody(isDark),
     );
   }
 
@@ -114,8 +189,8 @@ class _PaymentResultScreenState extends ConsumerState<PaymentResultScreen> {
             ] else if (_status == 'success') ...[
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFDCFCE7),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -167,7 +242,10 @@ class _PaymentResultScreenState extends ConsumerState<PaymentResultScreen> {
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
-                    onPressed: () => context.go('/orders'),
+                    onPressed: () {
+                      ref.invalidate(ordersProvider(null));
+                      context.go('/orders/${widget.orderId}');
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2563EB),
                       foregroundColor: Colors.white,
@@ -177,11 +255,68 @@ class _PaymentResultScreenState extends ConsumerState<PaymentResultScreen> {
                   ),
                 ],
               ),
-            ] else ...[
+            ] else if (_status == 'error') ...[
+              // Network/verification error — allow retry
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEE2E2),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEF3C7),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  size: 64,
+                  color: Color(0xFFD97706),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Loi xac thuc',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : const Color(0xFF1C1917),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF78716C),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  OutlinedButton(
+                    onPressed: () => context.go('/orders/${widget.orderId}'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      side: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE7E5E4)),
+                    ),
+                    child: Text('Xem don hang', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1917))),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: _retrying ? null : _verifyPayment,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2563EB),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    ),
+                    child: const Text('Thu lai'),
+                  ),
+                ],
+              ),
+            ] else ...[
+              // Payment failed (VNPay response code != 00)
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEE2E2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -231,13 +366,13 @@ class _PaymentResultScreenState extends ConsumerState<PaymentResultScreen> {
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
-                    onPressed: () => context.go('/cart'),
+                    onPressed: () => context.go('/orders/${widget.orderId}'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2563EB),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                     ),
-                    child: const Text('Quay ve gio hang'),
+                    child: const Text('Xem don hang'),
                   ),
                 ],
               ),
