@@ -86,7 +86,7 @@ class FlashSaleData {
 }
 
 class FlashSaleProduct {
-  final int productId;
+  final String productId;
   final String name;
   final String? imageUrl;
   final double originalPrice;
@@ -108,20 +108,20 @@ class FlashSaleProduct {
 
   factory FlashSaleProduct.fromJson(Map<String, dynamic> json) {
     return FlashSaleProduct(
-      productId: json['productId'] as int,
+      productId: json['productId'].toString(),
       name: json['name'] as String? ?? '',
       imageUrl: json['imageUrl'] as String?,
       originalPrice: (json['originalPrice'] as num?)?.toDouble() ?? 0.0,
       salePrice: (json['salePrice'] as num?)?.toDouble() ?? 0.0,
-      discountPercent: json['discountPercent'] as int? ?? 0,
-      stock: json['stock'] as int? ?? 0,
-      sold: json['sold'] as int? ?? 0,
+      discountPercent: (json['discountPercent'] as num?)?.toInt() ?? 0,
+      stock: (json['stock'] as num?)?.toInt() ?? 0,
+      sold: (json['sold'] as num?)?.toInt() ?? 0,
     );
   }
 }
 
 class DealProduct {
-  final int productId;
+  final String productId;
   final String name;
   final String? imageUrl;
   final double originalPrice;
@@ -141,19 +141,19 @@ class DealProduct {
 
   factory DealProduct.fromJson(Map<String, dynamic> json) {
     return DealProduct(
-      productId: json['productId'] as int,
+      productId: json['productId'].toString(),
       name: json['name'] as String? ?? '',
       imageUrl: json['imageUrl'] as String?,
       originalPrice: (json['originalPrice'] as num?)?.toDouble() ?? 0.0,
       dealPrice: (json['dealPrice'] as num?)?.toDouble() ?? 0.0,
-      discountPercent: json['discountPercent'] as int? ?? 0,
+      discountPercent: (json['discountPercent'] as num?)?.toInt() ?? 0,
       dealType: json['dealType'] as String? ?? 'DEAL',
     );
   }
 }
 
 class PromotionBanner {
-  final int id;
+  final String id;
   final String title;
   final String? subtitle;
   final String imageUrl;
@@ -171,12 +171,12 @@ class PromotionBanner {
 
   factory PromotionBanner.fromJson(Map<String, dynamic> json) {
     return PromotionBanner(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       title: json['title'] as String,
       subtitle: json['subtitle'] as String?,
       imageUrl: json['imageUrl'] as String,
       actionUrl: json['actionUrl'] as String?,
-      position: json['position'] as int? ?? 0,
+      position: (json['position'] as num?)?.toInt() ?? 0,
     );
   }
 }

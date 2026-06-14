@@ -51,18 +51,18 @@ class AuthLayout extends StatelessWidget {
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const Color(0xFF1E293B).withValues(alpha: 0.8)
+                        ? const Color(0xFF1E293B).withOpacity(0.8)
                         : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isDark
-                          ? const Color(0xFF334155).withValues(alpha: 0.5)
-                          : const Color(0xFFE7E5E4).withValues(alpha: 0.8),
+                          ? const Color(0xFF334155).withOpacity(0.5)
+                          : const Color(0xFFE7E5E4).withOpacity(0.8),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),

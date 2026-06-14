@@ -4,7 +4,7 @@
 }
 
 class UserModel {
-  final int id;
+  final String id;
   final String email;
   final String fullName;
   final String role;
@@ -32,24 +32,24 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] as int,
-      email: json['email'] as String,
+      id: json['id'].toString(),
+      email: json['email'] as String? ?? '',
       fullName: json['fullName'] as String? ?? '',
       role: json['role'] as String? ?? 'USER',
       phone: json['phone'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
       avatarUrl: json['avatarUrl'] as String?,
       accountVerified: json['accountVerified'] as bool? ?? false,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) : null,
       gender: json['gender'] as String?,
-      dateOfBirth: json['dateOfBirth'] != null ? DateTime.parse(json['dateOfBirth'] as String) : null,
+      dateOfBirth: json['dateOfBirth'] != null ? DateTime.tryParse(json['dateOfBirth'] as String) : null,
     );
   }
 
   factory UserModel.fromLoginResponse(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] as int,
-      email: json['email'] as String,
+      id: json['id'].toString(),
+      email: json['email'] as String? ?? '',
       fullName: json['username'] as String? ?? json['fullName'] as String? ?? '',
       role: json['role'] as String? ?? 'USER',
       phone: json['phone'] as String?,
@@ -79,7 +79,7 @@ class UserModel {
   }
 
   UserModel copyWith({
-    int? id,
+    String? id,
     String? email,
     String? fullName,
     String? role,

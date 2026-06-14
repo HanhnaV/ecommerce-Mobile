@@ -1,10 +1,10 @@
 class Report {
-  final int id;
+  final String id;
   final String reportType;
   final String reason;
   final String? description;
   final String status;
-  final int? targetId;
+  final String? targetId;
   final String? targetType;
   final DateTime createdAt;
   final DateTime? resolvedAt;
@@ -25,18 +25,18 @@ class Report {
 
   factory Report.fromJson(Map<String, dynamic> json) {
     return Report(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       reportType: json['reportType'] as String? ?? 'ORDER',
       reason: json['reason'] as String? ?? '',
       description: json['description'] as String?,
       status: json['status'] as String? ?? 'PENDING',
-      targetId: json['targetId'] as int?,
+      targetId: json['targetId']?.toString(),
       targetType: json['targetType'] as String?,
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
       resolvedAt: json['resolvedAt'] != null
-          ? DateTime.parse(json['resolvedAt'] as String)
+          ? DateTime.tryParse(json['resolvedAt'] as String)
           : null,
       adminNote: json['adminNote'] as String?,
     );
@@ -92,7 +92,7 @@ class ReportSubmitBody {
   final String reportType;
   final String reason;
   final String? description;
-  final int? targetId;
+  final String? targetId;
   final String? targetType;
 
   const ReportSubmitBody({

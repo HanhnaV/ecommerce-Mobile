@@ -49,7 +49,7 @@ void main() {
       await notifier.login(
         'test.jwt.token',
         const UserModel(
-          id: 1,
+          id: "1",
           email: 'test@example.com',
           fullName: 'Test User',
           role: 'USER',
@@ -66,7 +66,7 @@ void main() {
     test('logout() resets state and clears cart', () async {
       await notifier.login(
         'test.jwt.token',
-        const UserModel(id: 1, email: 'test@example.com', fullName: 'Test User', role: 'USER'),
+        const UserModel(id: "1", email: 'test@example.com', fullName: 'Test User', role: 'USER'),
       );
       await notifier.logout();
       final state = container.read(authStateProvider);
@@ -79,10 +79,10 @@ void main() {
     test('updateUser() replaces user data without affecting auth state', () async {
       await notifier.login(
         'test.jwt.token',
-        const UserModel(id: 1, email: 'old@example.com', fullName: 'Old Name', role: 'USER'),
+        const UserModel(id: "1", email: 'old@example.com', fullName: 'Old Name', role: 'USER'),
       );
       await notifier.updateUser(
-        const UserModel(id: 1, email: 'new@example.com', fullName: 'New Name', role: 'USER'),
+        const UserModel(id: "1", email: 'new@example.com', fullName: 'New Name', role: 'USER'),
       );
       final state = container.read(authStateProvider);
       expect(state.user?.email, 'new@example.com');
@@ -93,7 +93,7 @@ void main() {
     test('updateAccountVerified() toggles accountVerified flag', () async {
       await notifier.login(
         'test.jwt.token',
-        const UserModel(id: 1, email: 'test@example.com', fullName: 'Test User', role: 'USER', accountVerified: false),
+        const UserModel(id: "1", email: 'test@example.com', fullName: 'Test User', role: 'USER', accountVerified: false),
       );
       expect(notifier.state.accountVerified, false);
       await notifier.updateAccountVerified(true);
@@ -106,7 +106,7 @@ void main() {
   group('AuthState', () {
     test('copyWith preserves unchanged fields', () {
       const original = AuthState(
-        user: UserModel(id: 1, email: 'a@b.com', fullName: 'A', role: 'USER'),
+        user: UserModel(id: "1", email: 'a@b.com', fullName: 'A', role: 'USER'),
         token: 'tok',
         isAuthenticated: true,
         accountVerified: true,

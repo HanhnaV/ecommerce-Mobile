@@ -1,5 +1,5 @@
 class ProductImage {
-  final int id;
+  final String id;
   final String imageUrl;
   final bool isThumbnail;
 
@@ -11,7 +11,7 @@ class ProductImage {
 
   factory ProductImage.fromJson(Map<String, dynamic> json) {
     return ProductImage(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       imageUrl: json['imageUrl'] as String,
       isThumbnail: json['isThumbnail'] as bool? ?? false,
     );
@@ -27,14 +27,14 @@ class ProductImage {
 }
 
 class ProductModel {
-  final int id;
+  final String id;
   final String name;
   final String? description;
   final double basePrice;
   final String? sku;
   final String? categoryId;
   final String? categoryName;
-  final int? shopId;
+  final String? shopId;
   final String? shopName;
   final String status;
   final List<ProductImage> images;
@@ -64,7 +64,7 @@ class ProductModel {
     final thumbnail = imagesList.where((img) => img.isThumbnail).firstOrNull ?? imagesList.firstOrNull;
 
     return ProductModel(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       name: json['name'] as String,
       description: json['description'] as String?,
       basePrice: (json['basePrice'] is num)
@@ -73,7 +73,7 @@ class ProductModel {
       sku: json['sku'] as String?,
       categoryId: json['categoryId']?.toString(),
       categoryName: json['categoryName'] as String?,
-      shopId: json['shopId'] as int?,
+      shopId: json['shopId']?.toString(),
       shopName: json['shopName'] as String?,
       status: json['status'] as String? ?? 'PUBLISHED',
       images: imagesList,

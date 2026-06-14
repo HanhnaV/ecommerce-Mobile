@@ -60,7 +60,7 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
       final provinces = await _shippingService.getProvinces();
       final province = provinces.firstWhere(
         (p) => p.name.toLowerCase() == addr.city.toLowerCase(),
-        orElse: () => const Province(id: 0, name: ''),
+        orElse: () => const Province(id: "0", name: ''),
       );
       if (province.id != 0 && mounted) {
         setState(() => _selectedProvince = province);
@@ -68,7 +68,7 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
 
         final district = _districts.firstWhere(
           (d) => d.name.toLowerCase() == addr.district.toLowerCase(),
-          orElse: () => const District(id: 0, name: '', provinceId: 0),
+          orElse: () => const District(id: "1", name: '', provinceId: "0"),
         );
         if (district.id != 0 && mounted) {
           setState(() => _selectedDistrict = district);
@@ -76,7 +76,7 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
 
           final ward = _wards.firstWhere(
             (w) => w.name.toLowerCase() == addr.ward.toLowerCase(),
-            orElse: () => const Ward(code: '', name: '', districtId: 0),
+            orElse: () => const Ward(code: '', name: '', districtId: "0"),
           );
           if (mounted) setState(() => _selectedWard = ward);
         }
@@ -104,7 +104,7 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
     }
   }
 
-  Future<void> _loadDistricts(int provinceId) async {
+  Future<void> _loadDistricts(String provinceId) async {
     setState(() {
       _loadingDistricts = true;
       _selectedDistrict = null;
@@ -121,7 +121,7 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
     }
   }
 
-  Future<void> _loadWards(int districtId) async {
+  Future<void> _loadWards(String districtId) async {
     setState(() {
       _loadingWards = true;
       _selectedWard = null;
@@ -154,7 +154,7 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
         city: _selectedProvince!.name,
         district: _selectedDistrict!.name,
         ward: _selectedWard!.name,
-        districtId: _selectedDistrict!.id,
+        districtId: (_selectedDistrict!.id).toString(),
         wardCode: _selectedWard!.code,
         isDefault: _isDefault,
       );

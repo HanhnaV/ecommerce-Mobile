@@ -5,8 +5,8 @@ class OrderService {
   OrderService();
 
   Future<OrderCreateResponse> createOrder({
-    required int shopId,
-    required int addressId,
+    required String shopId,
+    required String addressId,
     String? notes,
   }) async {
     try {
@@ -24,7 +24,7 @@ class OrderService {
     }
   }
 
-  Future<VnpayPaymentResponse> createVnpayPayment(int orderId) async {
+  Future<VnpayPaymentResponse> createVnpayPayment(String orderId) async {
     try {
       final response = await apiClient.post('/api/v1/payment/orders/$orderId/vnpay');
       return VnpayPaymentResponse.fromJson(response.data as Map<String, dynamic>);
@@ -55,7 +55,7 @@ class OrderService {
     }
   }
 
-  Future<OrderDetail> getMyOrderById(int orderId) async {
+  Future<OrderDetail> getMyOrderById(String orderId) async {
     try {
       final response = await apiClient.get('/api/v1/order/$orderId/me');
       return OrderDetail.fromJson(response.data as Map<String, dynamic>);
@@ -64,7 +64,7 @@ class OrderService {
     }
   }
 
-  Future<void> markOrderReceived(int orderId) async {
+  Future<void> markOrderReceived(String orderId) async {
     try {
       await apiClient.patch('/api/v1/order/$orderId/received');
     } on DioException catch (e) {
@@ -72,7 +72,7 @@ class OrderService {
     }
   }
 
-  Future<void> cancelOrder(int orderId) async {
+  Future<void> cancelOrder(String orderId) async {
     try {
       await apiClient.patch('/api/v1/order/$orderId/cancel');
     } on DioException catch (e) {
@@ -100,14 +100,14 @@ class OrderService {
 }
 
 class OrderCreateResponse {
-  final int id;
+  final String id;
   final String status;
 
   const OrderCreateResponse({required this.id, required this.status});
 
   factory OrderCreateResponse.fromJson(Map<String, dynamic> json) {
     return OrderCreateResponse(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       status: json['status'] as String? ?? 'PENDING',
     );
   }
@@ -152,10 +152,10 @@ class OrderPage {
 }
 
 class OrderDetail {
-  final int id;
+  final String id;
   final String orderCode;
   final String status;
-  final int shopId;
+  final String shopId;
   final String shopName;
   final double totalAmount;
   final double shippingFee;
@@ -180,10 +180,10 @@ class OrderDetail {
 
   factory OrderDetail.fromJson(Map<String, dynamic> json) {
     return OrderDetail(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       orderCode: json['orderCode'] as String? ?? '',
       status: json['status'] as String? ?? '',
-      shopId: json['shopId'] as int? ?? 0,
+      shopId: json['shopId'].toString(),
       shopName: json['shopName'] as String? ?? '',
       totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
       shippingFee: (json['shippingFee'] as num?)?.toDouble() ?? 0.0,
@@ -203,7 +203,7 @@ class OrderDetail {
 }
 
 class OrderItem {
-  final int productId;
+  final String productId;
   final String productName;
   final double unitPrice;
   final int quantity;
@@ -221,10 +221,10 @@ class OrderItem {
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return OrderItem(
-      productId: json['productId'] as int,
+      productId: json['productId'].toString(),
       productName: json['productName'] as String? ?? '',
       unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
-      quantity: json['quantity'] as int,
+      quantity: (json['quantity'] as num?)?.toInt() ?? 0,
       totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
       imageUrl: json['imageUrl'] as String?,
     );
@@ -232,7 +232,7 @@ class OrderItem {
 }
 
 class AddressInfo {
-  final int id;
+  final String id;
   final String receiverName;
   final String receiverPhone;
   final String addressLine;
@@ -258,15 +258,15 @@ class AddressInfo {
 
   factory AddressInfo.fromJson(Map<String, dynamic> json) {
     return AddressInfo(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       receiverName: json['receiverName'] as String? ?? '',
       receiverPhone: json['receiverPhone'] as String? ?? '',
       addressLine: json['addressLine'] as String? ?? '',
       city: json['city'] as String? ?? '',
       district: json['district'] as String? ?? '',
       ward: json['ward'] as String? ?? '',
-      districtId: json['districtId'] as int?,
-      wardCode: json['wardCode'] as String?,
+      districtId: (json['districtId'] as num?)?.toInt(),
+      wardCode: json['wardCode']?.toString(),
       isDefault: json['isDefault'] as bool? ?? false,
     );
   }

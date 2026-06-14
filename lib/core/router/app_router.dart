@@ -76,7 +76,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/products/:id',
         builder: (context, state) {
           final idParam = state.pathParameters['id'];
-          final productId = int.tryParse(idParam ?? '') ?? 0;
+          final productId = idParam ?? '';
           return ProductDetailScreen(productId: productId);
         },
       ),
@@ -85,7 +85,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/checkout',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final shopId = extra?['shopId'] as int? ?? 0;
+          final shopId = extra?['shopId']?.toString() ?? '';
           return CheckoutScreen(shopId: shopId);
         },
       ),
@@ -94,7 +94,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           final paymentUrl = extra?['paymentUrl'] as String? ?? '';
-          final orderId = extra?['orderId'] as int? ?? 0;
+          final orderId = extra?['orderId']?.toString() ?? '';
           return VnpayWebViewScreen(paymentUrl: paymentUrl, orderId: orderId);
         },
       ),
@@ -102,7 +102,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/payment-result',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final orderId = extra?['orderId'] as int? ?? 0;
+          final orderId = extra?['orderId']?.toString() ?? '';
           final params = (extra?['params'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v.toString())) ?? <String, String>{};
           return PaymentResultScreen(orderId: orderId, params: params);
         },
@@ -128,7 +128,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/orders/:id',
         builder: (context, state) {
           final idParam = state.pathParameters['id'];
-          final orderId = int.tryParse(idParam ?? '') ?? 0;
+          final orderId = idParam ?? '';
           return OrderDetailScreen(orderId: orderId);
         },
       ),
@@ -137,7 +137,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           return SubmitReviewScreen(
-            productId: extra?['productId'] as int? ?? 0,
+            productId: extra?['productId']?.toString() ?? '',
             productName: extra?['productName'] as String? ?? '',
             productImageUrl: extra?['productImageUrl'] as String?,
           );

@@ -14,11 +14,11 @@ final _orderService = OrderService();
 final _addressService = UserAddressService();
 final _shippingService = ShippingService();
 
-const _FROM_DISTRICT_ID = 1442;
+const _FROM_DISTRICT_ID = "1442";
 const _FROM_WARD_CODE = '20101';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
-  final int shopId;
+  final String shopId;
 
   const CheckoutScreen({super.key, required this.shopId});
 
@@ -37,7 +37,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   bool _shippingFeeFailed = false;
 
   List<UserAddress> _addresses = [];
-  int? _selectedAddressId;
+  String? _selectedAddressId;
   final _notesController = TextEditingController();
   bool _processing = false;
 
@@ -80,7 +80,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           _addresses = addresses;
 
           final defaultAddr = addresses.where((a) => a.isDefault).firstOrNull ?? addresses.firstOrNull;
-          if (defaultAddr != null) _selectedAddressId = defaultAddr.id;
+          if (defaultAddr != null) _selectedAddressId = (defaultAddr.id).toString();
         });
 
         if (_selectedAddressId != null) {
@@ -281,7 +281,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ),
                   child: Row(
                     children: [
-                      Radio<int>(
+                      Radio<String>(
                         value: addr.id!,
                         groupValue: _selectedAddressId,
                         onChanged: (v) {

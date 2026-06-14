@@ -1,10 +1,10 @@
 class CartItem {
-  final int id;
-  final int productId;
+  final String id;
+  final String productId;
   final String name;
   final double price;
   final int quantity;
-  final int shopId;
+  final String shopId;
   final String shopName;
   final String? imageUrl;
 
@@ -22,12 +22,12 @@ class CartItem {
   double get totalPrice => price * quantity;
 
   CartItem copyWith({
-    int? id,
-    int? productId,
+    String? id,
+    String? productId,
     String? name,
     double? price,
     int? quantity,
-    int? shopId,
+    String? shopId,
     String? shopName,
     String? imageUrl,
   }) {

@@ -26,7 +26,7 @@ class UserAddressService {
     }
   }
 
-  Future<UserAddress> updateAddress(int addressId, UserAddress address) async {
+  Future<UserAddress> updateAddress(String addressId, UserAddress address) async {
     try {
       final response = await apiClient.put(
         '/api/v1/address/$addressId',
@@ -38,7 +38,7 @@ class UserAddressService {
     }
   }
 
-  Future<void> deleteAddress(int addressId) async {
+  Future<void> deleteAddress(String addressId) async {
     try {
       await apiClient.delete('/api/v1/address/$addressId');
     } on DioException catch (e) {
@@ -46,7 +46,7 @@ class UserAddressService {
     }
   }
 
-  Future<void> setDefaultAddress(int addressId) async {
+  Future<void> setDefaultAddress(String addressId) async {
     try {
       await apiClient.patch('/api/v1/address/$addressId/default');
     } on DioException catch (e) {
@@ -74,14 +74,14 @@ class UserAddressService {
 }
 
 class UserAddress {
-  final int? id;
+  final String? id;
   final String receiverName;
   final String receiverPhone;
   final String addressLine;
   final String city;
   final String district;
   final String ward;
-  final int? districtId;
+  final String? districtId;
   final String? wardCode;
   final bool isDefault;
 
@@ -100,15 +100,15 @@ class UserAddress {
 
   factory UserAddress.fromJson(Map<String, dynamic> json) {
     return UserAddress(
-      id: json['id'] as int?,
+      id: json['id']?.toString(),
       receiverName: json['receiverName'] as String? ?? '',
       receiverPhone: json['receiverPhone'] as String? ?? '',
       addressLine: json['addressLine'] as String? ?? '',
       city: json['city'] as String? ?? '',
       district: json['district'] as String? ?? '',
       ward: json['ward'] as String? ?? '',
-      districtId: json['districtId'] as int?,
-      wardCode: json['wardCode'] as String?,
+      districtId: json['districtId']?.toString(),
+      wardCode: json['wardCode']?.toString(),
       isDefault: json['isDefault'] as bool? ?? false,
     );
   }
@@ -128,14 +128,14 @@ class UserAddress {
   }
 
   UserAddress copyWith({
-    int? id,
+    String? id,
     String? receiverName,
     String? receiverPhone,
     String? addressLine,
     String? city,
     String? district,
     String? ward,
-    int? districtId,
+    String? districtId,
     String? wardCode,
     bool? isDefault,
   }) {

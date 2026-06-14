@@ -14,7 +14,7 @@ class ShippingService {
     }
   }
 
-  Future<List<District>> getDistricts(int provinceId) async {
+  Future<List<District>> getDistricts(String provinceId) async {
     try {
       final response = await apiClient.get(
         '/api/v1/shipping/districts',
@@ -27,7 +27,7 @@ class ShippingService {
     }
   }
 
-  Future<List<Ward>> getWards(int districtId) async {
+  Future<List<Ward>> getWards(String districtId) async {
     try {
       final response = await apiClient.get(
         '/api/v1/shipping/wards',
@@ -41,9 +41,9 @@ class ShippingService {
   }
 
   Future<ShippingFeeResponse> calculateFee({
-    required int fromDistrictId,
+    required String fromDistrictId,
     required String fromWardCode,
-    required int toDistrictId,
+    required String toDistrictId,
     required String toWardCode,
     required int weight,
     int serviceTypeId = 2,
@@ -88,31 +88,31 @@ class ShippingService {
 }
 
 class Province {
-  final int id;
+  final String id;
   final String name;
 
   const Province({required this.id, required this.name});
 
   factory Province.fromJson(Map<String, dynamic> json) {
     return Province(
-      id: json['province_id'] as int? ?? json['id'] as int? ?? 0,
+      id: (json['province_id'] ?? json['id'] ?? '').toString(),
       name: json['province_name'] as String? ?? json['name'] as String? ?? '',
     );
   }
 }
 
 class District {
-  final int id;
+  final String id;
   final String name;
-  final int provinceId;
+  final String provinceId;
 
   const District({required this.id, required this.name, required this.provinceId});
 
   factory District.fromJson(Map<String, dynamic> json) {
     return District(
-      id: json['district_id'] as int? ?? json['id'] as int? ?? 0,
+      id: (json['district_id'] ?? json['id'] ?? '').toString(),
       name: json['district_name'] as String? ?? json['name'] as String? ?? '',
-      provinceId: json['province_id'] as int? ?? 0,
+      provinceId: (json['province_id'] ?? '').toString(),
     );
   }
 }
@@ -120,15 +120,15 @@ class District {
 class Ward {
   final String code;
   final String name;
-  final int districtId;
+  final String districtId;
 
   const Ward({required this.code, required this.name, required this.districtId});
 
   factory Ward.fromJson(Map<String, dynamic> json) {
     return Ward(
-      code: json['ward_code'] as String? ?? json['code'] as String? ?? '',
+      code: (json['ward_code'] ?? json['code'] ?? '').toString(),
       name: json['ward_name'] as String? ?? json['name'] as String? ?? '',
-      districtId: json['district_id'] as int? ?? 0,
+      districtId: (json['district_id'] ?? '').toString(),
     );
   }
 }

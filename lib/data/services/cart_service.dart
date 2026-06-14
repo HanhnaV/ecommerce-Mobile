@@ -14,7 +14,7 @@ class CartService {
   }
 
   Future<CartApiResponse> addToCart({
-    required int productId,
+    required String productId,
     int quantity = 1,
   }) async {
     try {
@@ -31,7 +31,7 @@ class CartService {
     }
   }
 
-  Future<CartApiResponse> increaseQuantity(int cartItemId) async {
+  Future<CartApiResponse> increaseQuantity(String cartItemId) async {
     try {
       final response = await apiClient.post('/api/v1/cart/items/$cartItemId/plus');
       return CartApiResponse.fromJson(response.data as Map<String, dynamic>);
@@ -40,7 +40,7 @@ class CartService {
     }
   }
 
-  Future<CartApiResponse> decreaseQuantity(int cartItemId) async {
+  Future<CartApiResponse> decreaseQuantity(String cartItemId) async {
     try {
       final response = await apiClient.post('/api/v1/cart/items/$cartItemId/minus');
       return CartApiResponse.fromJson(response.data as Map<String, dynamic>);
@@ -49,7 +49,7 @@ class CartService {
     }
   }
 
-  Future<CartApiResponse> removeItem(int cartItemId) async {
+  Future<CartApiResponse> removeItem(String cartItemId) async {
     try {
       final response = await apiClient.delete('/api/v1/cart/items/$cartItemId');
       return CartApiResponse.fromJson(response.data as Map<String, dynamic>);
@@ -97,13 +97,13 @@ class CartApiResponse {
 }
 
 class CartApiItem {
-  final int id;
-  final int productId;
+  final String id;
+  final String productId;
   final String productName;
   final double unitPrice;
   final int quantity;
   final double totalPrice;
-  final int shopId;
+  final String shopId;
   final String shopName;
   final String? productImageUrl;
 
@@ -121,13 +121,13 @@ class CartApiItem {
 
   factory CartApiItem.fromJson(Map<String, dynamic> json) {
     return CartApiItem(
-      id: json['id'] as int,
-      productId: json['productId'] as int,
+      id: json['id'].toString(),
+      productId: json['productId'].toString(),
       productName: json['productName'] as String? ?? '',
       unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
-      quantity: json['quantity'] as int,
+      quantity: (json['quantity'] as num?)?.toInt() ?? 0,
       totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
-      shopId: json['shopId'] as int,
+      shopId: json['shopId'].toString(),
       shopName: json['shopName'] as String? ?? '',
       productImageUrl: json['productImageUrl'] as String?,
     );

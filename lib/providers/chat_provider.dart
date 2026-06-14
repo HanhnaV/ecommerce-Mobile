@@ -64,7 +64,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     state = state.copyWith(isLoading: true);
     try {
       final messages = await _service.getMessages(
-        state.conversation!.id,
+        (state.conversation!.id).toString(),
         page: (state.messages.length / 50).floor() + 1,
       );
       state = state.copyWith(
@@ -84,7 +84,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     state = state.copyWith(isSending: true, error: null);
 
     final tempMessage = ChatMessage(
-      id: -DateTime.now().millisecondsSinceEpoch,
+      id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
       conversationId: state.conversation!.id,
       content: content.trim(),
       senderType: 'USER',
@@ -93,7 +93,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     state = state.copyWith(messages: [...state.messages, tempMessage]);
 
     try {
-      final sent = await _service.sendMessage(state.conversation!.id, content.trim());
+      final sent = await _service.sendMessage((state.conversation!.id).toString(), content.trim());
       final updated = state.messages.map((m) {
         return m.id == tempMessage.id ? sent : m;
       }).toList();
