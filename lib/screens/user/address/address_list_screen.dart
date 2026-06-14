@@ -27,12 +27,16 @@ class _AddressListScreenState extends ConsumerState<AddressListScreen> {
   }
 
   Future<void> _loadAddresses() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final list = await _addressService.listMyAddresses();
       if (mounted) setState(() => _addresses = list);
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+      if (mounted)
+        setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -45,7 +49,10 @@ class _AddressListScreenState extends ConsumerState<AddressListScreen> {
       await _loadAddresses();
       if (mounted) Fluttertoast.showToast(msg: 'Da dat dia chi mac dinh');
     } catch (e) {
-      if (mounted) Fluttertoast.showToast(msg: e.toString().replaceFirst('Exception: ', ''), backgroundColor: AppColors.error);
+      if (mounted)
+        Fluttertoast.showToast(
+            msg: e.toString().replaceFirst('Exception: ', ''),
+            backgroundColor: AppColors.error);
     }
   }
 
@@ -57,7 +64,9 @@ class _AddressListScreenState extends ConsumerState<AddressListScreen> {
         title: const Text('Xoa dia chi'),
         content: const Text('Ban co chan muon xoa dia chi nay?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Huy')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Huy')),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Xoa', style: TextStyle(color: AppColors.error)),
@@ -71,7 +80,10 @@ class _AddressListScreenState extends ConsumerState<AddressListScreen> {
       await _loadAddresses();
       if (mounted) Fluttertoast.showToast(msg: 'Xoa dia chi thanh cong');
     } catch (e) {
-      if (mounted) Fluttertoast.showToast(msg: e.toString().replaceFirst('Exception: ', ''), backgroundColor: AppColors.error);
+      if (mounted)
+        Fluttertoast.showToast(
+            msg: e.toString().replaceFirst('Exception: ', ''),
+            backgroundColor: AppColors.error);
     }
   }
 
@@ -81,7 +93,8 @@ class _AddressListScreenState extends ConsumerState<AddressListScreen> {
     final isDark = themeState.isDark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text('Dia chi giao hang'),
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
@@ -93,7 +106,13 @@ class _AddressListScreenState extends ConsumerState<AddressListScreen> {
         child: _buildBody(isDark),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/addresses/add'),
+        onPressed: () async {
+          final result = await context.push('/addresses/add');
+
+          if (result == true) {
+            await _loadAddresses();
+          }
+        },
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
@@ -113,9 +132,15 @@ class _AddressListScreenState extends ConsumerState<AddressListScreen> {
           children: [
             Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 12),
-            Text(_error!, style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)), textAlign: TextAlign.center),
+            Text(_error!,
+                style: TextStyle(
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B)),
+                textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: _loadAddresses, child: const Text('Thu lai')),
+            ElevatedButton(
+                onPressed: _loadAddresses, child: const Text('Thu lai')),
           ],
         ),
       );
@@ -125,11 +150,24 @@ class _AddressListScreenState extends ConsumerState<AddressListScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.location_off, size: 64, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+            Icon(Icons.location_off,
+                size: 64,
+                color:
+                    isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
             const SizedBox(height: 16),
-            Text('Chua co dia chi nao', style: TextStyle(fontSize: 16, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+            Text('Chua co dia chi nao',
+                style: TextStyle(
+                    fontSize: 16,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B))),
             const SizedBox(height: 8),
-            Text('Them dia chi de nhan hang', style: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8))),
+            Text('Them dia chi de nhan hang',
+                style: TextStyle(
+                    fontSize: 13,
+                    color: isDark
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF94A3B8))),
           ],
         ),
       );
@@ -143,7 +181,18 @@ class _AddressListScreenState extends ConsumerState<AddressListScreen> {
         return _AddressCard(
           address: addr,
           isDark: isDark,
-          onEdit: () => context.push('/addresses/edit', extra: addr),
+          onEdit: () async {
+            final result = await context.push(
+              '/addresses/edit',
+              extra: addr,
+            );
+
+            print('EDIT RESULT: $result');
+
+            if (result == true) {
+              await _loadAddresses();
+            }
+          },
           onDelete: () => _deleteAddress(addr),
           onSetDefault: () => _setDefault(addr),
         );
@@ -168,7 +217,12 @@ class _AddressCard extends StatelessWidget {
   });
 
   String get _fullAddress {
-    final parts = <String>[address.addressLine, address.ward, address.district, address.city];
+    final parts = <String>[
+      address.addressLine,
+      address.ward,
+      address.district,
+      address.city
+    ];
     return parts.where((p) => p.isNotEmpty).join(', ');
   }
 
@@ -187,38 +241,70 @@ class _AddressCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.person, size: 18, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                  Icon(Icons.person,
+                      size: 18,
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       address.receiverName,
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: isDark ? Colors.white : Colors.black),
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: isDark ? Colors.white : Colors.black),
                     ),
                   ),
                   if (address.isDefault)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-                      child: const Text('Mac dinh', style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4)),
+                      child: const Text('Mac dinh',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600)),
                     ),
                 ],
               ),
               const SizedBox(height: 6),
               Row(
                 children: [
-                  Icon(Icons.phone, size: 16, color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                  Icon(Icons.phone,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF64748B)
+                          : const Color(0xFF94A3B8)),
                   const SizedBox(width: 8),
-                  Text(address.receiverPhone, style: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+                  Text(address.receiverPhone,
+                      style: TextStyle(
+                          fontSize: 13,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B))),
                 ],
               ),
               const SizedBox(height: 6),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.location_on, size: 16, color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                  Icon(Icons.location_on,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF64748B)
+                          : const Color(0xFF94A3B8)),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(_fullAddress, style: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+                    child: Text(_fullAddress,
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF64748B))),
                   ),
                 ],
               ),
@@ -230,7 +316,8 @@ class _AddressCard extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: onSetDefault,
                         icon: const Icon(Icons.check_circle_outline, size: 16),
-                        label: const Text('Dat mac dinh', style: TextStyle(fontSize: 12)),
+                        label: const Text('Dat mac dinh',
+                            style: TextStyle(fontSize: 12)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
                           side: const BorderSide(color: AppColors.primary),
@@ -241,12 +328,16 @@ class _AddressCard extends StatelessWidget {
                   if (!address.isDefault) const SizedBox(width: 8),
                   IconButton(
                     onPressed: onEdit,
-                    icon: Icon(Icons.edit_outlined, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                    icon: Icon(Icons.edit_outlined,
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B)),
                     tooltip: 'Chinh sua',
                   ),
                   IconButton(
                     onPressed: onDelete,
-                    icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                    icon: const Icon(Icons.delete_outline,
+                        color: AppColors.error),
                     tooltip: 'Xoa',
                   ),
                 ],
