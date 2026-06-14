@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
 enum OrderStatus {
+  pendingPayment('PENDING_PAYMENT', 'Chờ thanh toán', AppColors.warning),
   pending('PENDING', 'Chờ xác nhận', AppColors.pending),
   confirmed('CONFIRMED', 'Đã xác nhận', AppColors.confirmed),
   shipping('SHIPPING', 'Đang giao', AppColors.shipping),

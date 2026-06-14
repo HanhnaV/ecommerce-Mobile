@@ -5,17 +5,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../data/services/cart_service.dart';
 import '../../../data/services/order_service.dart';
 import '../../../data/services/user_address_service.dart';
-import '../../../data/services/shipping_service.dart';
 import '../../../providers/theme_provider.dart';
-import '../../../providers/cart_provider.dart';
 
 final _cartService = CartService();
 final _orderService = OrderService();
 final _addressService = UserAddressService();
-final _shippingService = ShippingService();
-
-const _FROM_DISTRICT_ID = "1442";
-const _FROM_WARD_CODE = '20101';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   final String shopId;
@@ -28,7 +22,6 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   bool _loading = true;
-  String? _error;
   List<CartApiItem> _cartItems = [];
   String _shopName = '';
   double _totalPrice = 0;
@@ -88,31 +81,29 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         }
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
   Future<void> _calculateShippingFee() async {
-    final selectedAddr = _addresses.where((a) => a.id == _selectedAddressId).firstOrNull;
-    if (selectedAddr == null || selectedAddr.districtId == null || selectedAddr.wardCode == null) return;
+    if (_selectedAddressId == null) return;
 
-    setState(() => _calculatingFee = true);
+    setState(() {
+      _calculatingFee = true;
+      _shippingFeeFailed = false;
+    });
     try {
-      final totalWeight = _cartItems.fold(0, (sum, item) => sum + (item.quantity * 500));
-      final insurance = _totalPrice > 5000000 ? 5000000 : _totalPrice.toInt();
-
-      final fee = await _shippingService.calculateFee(
-        fromDistrictId: _FROM_DISTRICT_ID,
-        fromWardCode: _FROM_WARD_CODE,
-        toDistrictId: selectedAddr.districtId!,
-        toWardCode: selectedAddr.wardCode!,
-        weight: totalWeight,
-        serviceTypeId: 2,
-        insuranceValue: insurance,
+      final quote = await _orderService.getCheckoutQuote(
+        shopId: widget.shopId,
+        addressId: _selectedAddressId!,
       );
-      if (mounted) setState(() => _shippingFee = fee.total);
+      if (mounted) setState(() => _shippingFee = quote.shippingFee);
     } catch (e) {
       if (mounted) setState(() {
         _shippingFee = 0;
@@ -149,10 +140,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       final paymentRes = await _orderService.createVnpayPayment(order.id);
 
       if (mounted) {
-        ref.read(cartProvider.notifier).clear();
-
+        // Do NOT clear cart provider — backend already soft-deleted cart items
+        // for this shop. Cart state will refresh on next CartScreen visit.
         if (paymentRes.paymentUrl.isNotEmpty) {
-          context.push('/checkout/vnpay', extra: {
+          context.pushReplacement('/checkout/vnpay', extra: {
             'paymentUrl': paymentRes.paymentUrl,
             'orderId': order.id,
           });
@@ -266,7 +257,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           else
             ...List.generate(_addresses.length, (i) {
               final addr = _addresses[i];
-              final isSelected = _selectedAddressId == addr.id;
               return GestureDetector(
                 onTap: () {
                   setState(() => _selectedAddressId = addr.id);
