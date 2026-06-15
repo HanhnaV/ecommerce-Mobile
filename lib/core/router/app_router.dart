@@ -25,7 +25,12 @@ import '../../screens/user/seller/seller_dashboard_screen.dart';
 import '../../screens/home/flash_sale_screen.dart';
 import '../../screens/user/chat/chat_screen.dart';
 import '../../screens/user/report/report_screen.dart';
-
+import '../../screens/admin/admin_main_layout.dart';
+import '../../screens/admin/dashboard/admin_dashboard_screen.dart';
+import '../../screens/admin/approval/admin_approval_screen.dart';
+import '../../screens/admin/orders/admin_orders_screen.dart';
+import '../../screens/admin/support/admin_support_screen.dart';
+import '../../screens/admin/profile/admin_profile_screen.dart';
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
 
@@ -40,16 +45,31 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isPublicRoute = publicRoutes.contains(location);
 
       if (!isAuth && !isPublicRoute) return '/login';
-      if (isAuth && location == '/login') return '/';
-      if (isAuth && location == '/register') return '/';
 
       final role = authState.user?.role;
+      if (isAuth && (location == '/login' || location == '/register' || location == '/')) {
+        if (role == 'ADMIN' && location != '/admin/dashboard') return '/admin/dashboard';
+        if (location != '/' && role != 'ADMIN') return '/';
+      }
+
       if (role == 'BUSINESS' && location.startsWith('/admin')) return '/';
       if (role == 'USER' && (location.startsWith('/admin') || location.startsWith('/business') || location.startsWith('/seller/dashboard'))) return '/';
 
       return null;
     },
     routes: [
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return AdminMainLayout(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(routes: [GoRoute(path: '/admin/dashboard', builder: (context, state) => const AdminDashboardScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/admin/approval', builder: (context, state) => const AdminApprovalScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/admin/orders', builder: (context, state) => const AdminOrdersScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/admin/support', builder: (context, state) => const AdminSupportScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/admin/profile', builder: (context, state) => const AdminProfileScreen())]),
+        ],
+      ),
       GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
