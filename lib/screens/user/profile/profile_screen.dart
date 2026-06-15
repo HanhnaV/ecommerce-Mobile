@@ -32,7 +32,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.initState();
     final user = ref.read(authStateProvider).user;
     _nameController = TextEditingController(text: user?.fullName ?? '');
-    _phoneController = TextEditingController(text: user?.phoneNumber ?? user?.phone ?? '');
+    _phoneController =
+        TextEditingController(text: user?.phoneNumber ?? user?.phone ?? '');
     _selectedGender = user?.gender;
     _selectedDate = user?.dateOfBirth;
   }
@@ -52,8 +53,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(leading: const Icon(Icons.camera_alt), title: const Text('Chup anh'), onTap: () => Navigator.pop(ctx, ImageSource.camera)),
-            ListTile(leading: const Icon(Icons.photo_library), title: const Text('Chon tu thu vien'), onTap: () => Navigator.pop(ctx, ImageSource.gallery)),
+            ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Chup anh'),
+                onTap: () => Navigator.pop(ctx, ImageSource.camera)),
+            ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Chon tu thu vien'),
+                onTap: () => Navigator.pop(ctx, ImageSource.gallery)),
           ],
         ),
       ),
@@ -83,7 +90,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         fullName: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
         gender: _selectedGender,
-        dateOfBirth: _selectedDate != null ? '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}' : null,
+        dateOfBirth: _selectedDate != null
+            ? '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}'
+            : null,
         avatarPath: _avatarPath,
       );
 
@@ -94,7 +103,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Fluttertoast.showToast(msg: e.toString().replaceFirst('Exception: ', ''), backgroundColor: AppColors.error);
+        Fluttertoast.showToast(
+            msg: e.toString().replaceFirst('Exception: ', ''),
+            backgroundColor: AppColors.error);
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -108,10 +119,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         title: const Text('Dang xuat'),
         content: const Text('Ban co chan muon dang xuat?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Huy')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Huy')),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Dang xuat', style: TextStyle(color: AppColors.error)),
+            child: const Text('Dang xuat',
+                style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -134,7 +148,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         : user?.avatarUrl;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text('Ho so'),
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
@@ -184,14 +199,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               onTap: _isEditing ? _pickAvatar : null,
               child: CircleAvatar(
                 radius: 50,
-                backgroundColor: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                backgroundColor:
+                    isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
                 backgroundImage: _avatarPath != null
                     ? FileImage(File(_avatarPath!)) as ImageProvider
                     : (avatarUrl != null && avatarUrl.isNotEmpty)
                         ? NetworkImage(avatarUrl) as ImageProvider
                         : null,
                 child: avatarUrl == null || _avatarPath != null
-                    ? Icon(Icons.person, size: 50, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF94A3B8))
+                    ? Icon(Icons.person,
+                        size: 50,
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF94A3B8))
                     : null,
               ),
             ),
@@ -201,8 +221,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 bottom: 0,
                 child: Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
+                  decoration: const BoxDecoration(
+                      color: AppColors.primary, shape: BoxShape.circle),
+                  child: const Icon(Icons.camera_alt,
+                      color: Colors.white, size: 16),
                 ),
               ),
           ],
@@ -216,10 +238,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 labelText: 'Ho va ten',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Khong duoc de trong' : null,
+              validator: (v) => (v == null || v.trim().isEmpty)
+                  ? 'Khong duoc de trong'
+                  : null,
             ),
           ),
         ],
@@ -244,7 +270,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   decoration: InputDecoration(
                     labelText: 'So dien thoai',
                     prefixIcon: const Icon(Icons.phone),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -253,7 +280,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   decoration: InputDecoration(
                     labelText: 'Gioi tinh',
                     prefixIcon: const Icon(Icons.person_outline),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   items: const [
                     DropdownMenuItem(value: 'MALE', child: Text('Nam')),
@@ -268,15 +296,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     decoration: InputDecoration(
                       labelText: 'Ngay sinh',
                       prefixIcon: const Icon(Icons.cake),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: Text(
                       _selectedDate != null
                           ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
                           : 'Chon ngay sinh',
-                      style: TextStyle(color: _selectedDate != null
-                          ? (isDark ? Colors.white : Colors.black)
-                          : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+                      style: TextStyle(
+                          color: _selectedDate != null
+                              ? (isDark ? Colors.white : Colors.black)
+                              : (isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B))),
                     ),
                   ),
                 ),
@@ -289,10 +321,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: _isSaving
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white))
                         : const Text('Luu thay doi'),
                   ),
                 ),
@@ -314,17 +351,37 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _divider(isDark),
             _infoRow(Icons.email, 'Email', user?.email ?? '-', isDark),
             _divider(isDark),
-            _infoRow(Icons.phone, 'So dien thoai', user?.phoneNumber ?? user?.phone ?? '-', isDark),
+            _infoRow(Icons.phone, 'So dien thoai',
+                user?.phoneNumber ?? user?.phone ?? '-', isDark),
             _divider(isDark),
-            _infoRow(Icons.wc, 'Gioi tinh',
-                user?.gender == 'MALE' ? 'Nam' : user?.gender == 'FEMALE' ? 'Nu' : '-', isDark),
+            _infoRow(
+                Icons.wc,
+                'Gioi tinh',
+                user?.gender == 'MALE'
+                    ? 'Nam'
+                    : user?.gender == 'FEMALE'
+                        ? 'Nu'
+                        : '-',
+                isDark),
             _divider(isDark),
-            _infoRow(Icons.cake, 'Ngay sinh',
-                user?.dateOfBirth != null ? '${user!.dateOfBirth!.day}/${user.dateOfBirth!.month}/${user.dateOfBirth!.year}' : '-', isDark),
+            _infoRow(
+                Icons.cake,
+                'Ngay sinh',
+                user?.dateOfBirth != null
+                    ? '${user!.dateOfBirth!.day}/${user.dateOfBirth!.month}/${user.dateOfBirth!.year}'
+                    : '-',
+                isDark),
             _divider(isDark),
-            _infoRow(Icons.verified_user, 'Trang thai',
-                (user?.accountVerified ?? false) ? 'Da xac thuc' : 'Chua xac thuc', isDark,
-                valueColor: (user?.accountVerified ?? false) ? AppColors.success : AppColors.warning),
+            _infoRow(
+                Icons.verified_user,
+                'Trang thai',
+                (user?.accountVerified ?? false)
+                    ? 'Da xac thuc'
+                    : 'Chua xac thuc',
+                isDark,
+                valueColor: (user?.accountVerified ?? false)
+                    ? AppColors.success
+                    : AppColors.warning),
             _divider(isDark),
             _infoRow(Icons.shield, 'Vai tro', user?.role ?? '-', isDark),
           ],
@@ -333,20 +390,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value, bool isDark, {Color? valueColor}) {
+  Widget _infoRow(IconData icon, String label, String value, bool isDark,
+      {Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+          Icon(icon,
+              size: 20,
+              color:
+                  isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+                Text(label,
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B))),
                 const SizedBox(height: 2),
-                Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: valueColor ?? (isDark ? Colors.white : Colors.black))),
+                Text(value,
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: valueColor ??
+                            (isDark ? Colors.white : Colors.black))),
               ],
             ),
           ),
@@ -356,7 +427,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _divider(bool isDark) {
-    return Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0));
+    return Divider(
+        height: 1,
+        color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0));
   }
 
   Widget _buildActionsCard(bool isDark, UserModel? user) {
@@ -365,37 +438,102 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(
         children: [
-          _actionTile(Icons.account_balance_wallet, 'Vi dien tu', Icons.chevron_right, isDark, () => context.push('/wallet')),
-          Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-          _actionTile(Icons.verified_user, 'Xac minh thanh toan', Icons.chevron_right, isDark, () => context.push('/kyc')),
-          Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-          _actionTile(Icons.location_on, 'Dia chi giao hang', Icons.chevron_right, isDark, () => context.push('/addresses')),
-          Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-          _actionTile(Icons.receipt_long, 'Don hang', Icons.chevron_right, isDark, () => context.push('/orders')),
-          Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-          _actionTile(Icons.flash_on, 'Khuyen mai', Icons.chevron_right, isDark, () => context.push('/flash-sale')),
-          Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-          _actionTile(Icons.storefront, 'Dang ky ban hang', Icons.chevron_right, isDark, () => context.push('/seller/register')),
-          if (user?.role == 'BUSINESS') ...[
-            Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-            _actionTile(Icons.dashboard, 'Business Dashboard', Icons.chevron_right, isDark, () => context.push('/seller/dashboard')),
+          _actionTile(Icons.account_balance_wallet, 'Vi dien tu',
+              Icons.chevron_right, isDark, () => context.push('/wallet')),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          _actionTile(Icons.verified_user, 'Xac minh thanh toan',
+              Icons.chevron_right, isDark, () => context.push('/kyc')),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          _actionTile(Icons.location_on, 'Dia chi giao hang',
+              Icons.chevron_right, isDark, () => context.push('/addresses')),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          _actionTile(Icons.receipt_long, 'Don hang', Icons.chevron_right,
+              isDark, () => context.push('/orders')),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          _actionTile(Icons.flash_on, 'Khuyen mai', Icons.chevron_right, isDark,
+              () => context.push('/flash-sale')),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          _actionTile(Icons.storefront, 'Dang ky ban hang', Icons.chevron_right,
+              isDark, () => context.push('/seller/register')),
+          if (user?.role == 'ADMIN') ...[
+            Divider(
+                height: 1,
+                color:
+                    isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+            _actionTile(
+                Icons.admin_panel_settings,
+                'Admin Dashboard',
+                Icons.chevron_right,
+                isDark,
+                () => context.push('/admin/dashboard')),
           ],
-          Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-          _actionTile(Icons.chat, 'Tro chuyen ho tro', Icons.chevron_right, isDark, () => context.push('/chat')),
-          Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-          _actionTile(Icons.report, 'Bao cao & Ho tro', Icons.chevron_right, isDark, () => context.push('/report')),
-          Divider(height: 1, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-          _actionTile(Icons.logout, 'Dang xuat', null, isDark, _logout, isDestructive: true),
+          if (user?.role == 'BUSINESS') ...[
+            Divider(
+                height: 1,
+                color:
+                    isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+            _actionTile(
+                Icons.dashboard,
+                'Business Dashboard',
+                Icons.chevron_right,
+                isDark,
+                () => context.push('/seller/dashboard')),
+          ],
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          _actionTile(Icons.chat, 'Tro chuyen ho tro', Icons.chevron_right,
+              isDark, () => context.push('/chat')),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          _actionTile(Icons.report, 'Bao cao & Ho tro', Icons.chevron_right,
+              isDark, () => context.push('/report')),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          _actionTile(Icons.logout, 'Dang xuat', null, isDark, _logout,
+              isDestructive: true),
         ],
       ),
     );
   }
 
-  Widget _actionTile(IconData icon, String title, IconData? trailing, bool isDark, VoidCallback onTap, {bool isDestructive = false}) {
+  Widget _actionTile(IconData icon, String title, IconData? trailing,
+      bool isDark, VoidCallback onTap,
+      {bool isDestructive = false}) {
     return ListTile(
-      leading: Icon(icon, color: isDestructive ? AppColors.error : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
-      title: Text(title, style: TextStyle(color: isDestructive ? AppColors.error : (isDark ? Colors.white : Colors.black))),
-      trailing: trailing != null ? Icon(trailing, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)) : null,
+      leading: Icon(icon,
+          color: isDestructive
+              ? AppColors.error
+              : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+      title: Text(title,
+          style: TextStyle(
+              color: isDestructive
+                  ? AppColors.error
+                  : (isDark ? Colors.white : Colors.black))),
+      trailing: trailing != null
+          ? Icon(trailing,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+          : null,
       onTap: onTap,
     );
   }

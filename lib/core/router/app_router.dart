@@ -25,6 +25,7 @@ import '../../screens/user/seller/seller_dashboard_screen.dart';
 import '../../screens/home/flash_sale_screen.dart';
 import '../../screens/user/chat/chat_screen.dart';
 import '../../screens/user/report/report_screen.dart';
+import '../../screens/admin/admin_dashboard_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -44,15 +45,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (isAuth && location == '/register') return '/';
 
       final role = authState.user?.role;
-      if (role == 'BUSINESS' && location.startsWith('/admin')) return '/';
-      if (role == 'USER' && (location.startsWith('/admin') || location.startsWith('/business') || location.startsWith('/seller/dashboard'))) return '/';
+      if (location.startsWith('/admin') && role != 'ADMIN') {
+        return '/';
+      }
+      if (role == 'USER' &&
+          (location.startsWith('/business') ||
+              location.startsWith('/seller/dashboard'))) return '/';
 
       return null;
     },
     routes: [
       GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-      GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
+      GoRoute(
+          path: '/register',
+          builder: (context, state) => const RegisterScreen()),
       GoRoute(
         path: '/verify',
         builder: (context, state) {
@@ -107,7 +114,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             orderId = state.uri.queryParameters['orderId'] ?? '';
           }
 
-          var params = (extra?['params'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v.toString())) ?? <String, String>{};
+          var params = (extra?['params'] as Map<String, dynamic>?)
+                  ?.map((k, v) => MapEntry(k, v.toString())) ??
+              <String, String>{};
           if (params.isEmpty) {
             params = state.uri.queryParameters;
           }
@@ -124,9 +133,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen()),
-      GoRoute(path: '/wallet', builder: (context, state) => const WalletScreen()),
-      GoRoute(path: '/addresses', builder: (context, state) => const AddressListScreen()),
+      GoRoute(
+          path: '/profile', builder: (context, state) => const ProfileScreen()),
+      GoRoute(
+          path: '/wallet', builder: (context, state) => const WalletScreen()),
+      GoRoute(
+          path: '/addresses',
+          builder: (context, state) => const AddressListScreen()),
       GoRoute(
         path: '/addresses/add',
         builder: (context, state) => const AddressFormScreen(),
@@ -140,7 +153,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(path: '/kyc', builder: (context, state) => const KycScreen()),
-      GoRoute(path: '/orders', builder: (context, state) => const OrderListScreen()),
+      GoRoute(
+          path: '/orders',
+          builder: (context, state) => const OrderListScreen()),
       GoRoute(
         path: '/orders/:id',
         builder: (context, state) {
@@ -160,11 +175,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(path: '/seller/register', builder: (context, state) => const SellerRegistrationScreen()),
-      GoRoute(path: '/seller/dashboard', builder: (context, state) => const SellerDashboardScreen()),
-      GoRoute(path: '/flash-sale', builder: (context, state) => const FlashSaleScreen()),
+      GoRoute(
+          path: '/seller/register',
+          builder: (context, state) => const SellerRegistrationScreen()),
+      GoRoute(
+          path: '/seller/dashboard',
+          builder: (context, state) => const SellerDashboardScreen()),
+      GoRoute(
+          path: '/flash-sale',
+          builder: (context, state) => const FlashSaleScreen()),
       GoRoute(path: '/chat', builder: (context, state) => const ChatScreen()),
-      GoRoute(path: '/report', builder: (context, state) => const ReportScreen()),
+      GoRoute(
+          path: '/report', builder: (context, state) => const ReportScreen()),
+      GoRoute(
+          path: '/admin/dashboard',
+          builder: (context, state) => const AdminDashboardScreen()),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(child: Text('Page not found: ${state.uri.path}')),
