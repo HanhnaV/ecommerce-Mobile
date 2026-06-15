@@ -1,119 +1,139 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/chat_message_model.dart';
-import '../data/services/chat_service.dart';
+import '../data/services/chat_socket_services.dart';
+import 'auth_provider.dart';
 
-final chatServiceProvider = Provider<ChatService>((ref) => ChatService());
+final chatSocketServiceProvider =
+Provider<ChatSocketService>((ref) => ChatSocketService());
 
 class ChatState {
-  final Conversation? conversation;
   final List<ChatMessage> messages;
   final bool isLoading;
   final bool isSending;
   final String? error;
+  final bool isConnected;
 
   const ChatState({
-    this.conversation,
     this.messages = const [],
     this.isLoading = false,
     this.isSending = false,
     this.error,
+    this.isConnected = false,
   });
 
   ChatState copyWith({
-    Conversation? conversation,
     List<ChatMessage>? messages,
     bool? isLoading,
     bool? isSending,
     String? error,
+    bool? isConnected,
   }) {
     return ChatState(
-      conversation: conversation ?? this.conversation,
       messages: messages ?? this.messages,
       isLoading: isLoading ?? this.isLoading,
       isSending: isSending ?? this.isSending,
       error: error,
+      isConnected: isConnected ?? this.isConnected,
     );
   }
 }
 
 class ChatNotifier extends StateNotifier<ChatState> {
-  final ChatService _service;
+  final ChatSocketService _socketService;
+  final Ref _ref;
 
-  ChatNotifier(this._service) : super(const ChatState());
+  ChatNotifier(this._socketService, this._ref)
+      : super(const ChatState());
 
-  Future<void> loadConversation() async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      final conv = await _service.getOrCreateConversation();
-      final messages = await _service.getMessages(conv.id);
-      state = state.copyWith(
-        conversation: conv,
-        messages: messages,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString().replaceFirst('Exception: ', ''),
-      );
-    }
+  Future<void> initChat() async {
+    _connectSocket();
   }
 
-  Future<void> loadMoreMessages() async {
-    if (state.conversation == null || state.isLoading) return;
-    state = state.copyWith(isLoading: true);
-    try {
-      final messages = await _service.getMessages(
-        (state.conversation!.id).toString(),
-        page: (state.messages.length / 50).floor() + 1,
-      );
-      state = state.copyWith(
-        messages: [...state.messages, ...messages],
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString().replaceFirst('Exception: ', ''),
-      );
-    }
+  void _connectSocket() {
+    _socketService.connect(
+      onMessageReceived: (data) {
+        final message = ChatMessage(
+          id: DateTime.now()
+              .millisecondsSinceEpoch
+              .toString(),
+          conversationId: '',
+          content: data['text'] ?? '',
+          senderType:
+          data['fromAdmin'] == true
+              ? 'ADMIN'
+              : 'USER',
+          createdAt: DateTime.now(),
+        );
+
+        state = state.copyWith(
+          messages: [
+            ...state.messages,
+            message,
+          ],
+        );
+      },
+
+      onConnect: (_) {
+        state = state.copyWith(
+          isConnected: true,
+        );
+      },
+
+      onError: (_) {
+        state = state.copyWith(
+          isConnected: false,
+          error: 'Socket connection failed',
+        );
+      },
+    );
   }
 
   Future<void> sendMessage(String content) async {
-    if (state.conversation == null || content.trim().isEmpty) return;
-    state = state.copyWith(isSending: true, error: null);
+    if (content.trim().isEmpty) return;
 
+    if (!_socketService.isConnected) {
+      state = state.copyWith(
+        error: 'Socket disconnected',
+      );
+      return;
+    }
+
+    // Hiển thị tin nhắn ngay trên UI
     final tempMessage = ChatMessage(
       id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
-      conversationId: state.conversation!.id,
+      conversationId: '',
       content: content.trim(),
       senderType: 'USER',
       createdAt: DateTime.now(),
     );
-    state = state.copyWith(messages: [...state.messages, tempMessage]);
 
-    try {
-      final sent = await _service.sendMessage((state.conversation!.id).toString(), content.trim());
-      final updated = state.messages.map((m) {
-        return m.id == tempMessage.id ? sent : m;
-      }).toList();
-      state = state.copyWith(messages: updated, isSending: false);
-    } catch (e) {
-      final updated = state.messages.where((m) => m.id != tempMessage.id).toList();
-      state = state.copyWith(
-        messages: updated,
-        isSending: false,
-        error: e.toString().replaceFirst('Exception: ', ''),
-      );
-    }
+    state = state.copyWith(
+      messages: [...state.messages, tempMessage],
+    );
+
+    _socketService.sendMessage(content.trim());
   }
 
   void clearError() {
     state = state.copyWith(error: null);
   }
+
+  @override
+  void dispose() {
+    _socketService.disconnect();
+    super.dispose();
+  }
 }
 
-final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) {
-  final service = ref.watch(chatServiceProvider);
-  return ChatNotifier(service);
-});
+final chatProvider =
+StateNotifierProvider<ChatNotifier, ChatState>(
+      (ref) {
+    final socketService =
+    ref.watch(chatSocketServiceProvider);
+
+    return ChatNotifier(
+      socketService,
+      ref,
+    );
+  },
+);
