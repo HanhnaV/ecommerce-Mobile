@@ -242,12 +242,12 @@ class SellerOrderDetail {
   factory SellerOrderDetail.fromJson(Map<String, dynamic> json) {
     return SellerOrderDetail(
       id: json['id'].toString(),
-      orderCode: json['orderCode'] as String? ?? '',
+      orderCode: json['orderCode'] as String? ?? json['orderNumber'] as String? ?? '',
       status: json['status'] as String? ?? '',
-      customerName: json['customerName'] as String?,
-      customerPhone: json['customerPhone'] as String?,
+      customerName: json['customerName'] as String? ?? json['shippingName'] as String?,
+      customerPhone: json['customerPhone'] as String? ?? json['shippingPhone'] as String?,
       shippingAddress: json['shippingAddress'] as String?,
-      totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
+      totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? (json['total'] as num?)?.toDouble() ?? 0.0,
       shippingFee: (json['shippingFee'] as num?)?.toDouble() ?? 0.0,
       items: (json['items'] as List<dynamic>?)
               ?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
