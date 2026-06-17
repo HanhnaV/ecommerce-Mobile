@@ -71,10 +71,7 @@ class _ChatCenterTabState
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() {
-      ref.read(adminChatProvider.notifier).connect();
-    });
+    // Socket connect được xử lý ở AdminMainLayout
   }
 
   @override
@@ -238,6 +235,28 @@ class _ChatCenterTabState
                     final isAdmin =
                         message
                             .fromAdmin;
+                    final isSystem = message.text == "Customer đã ngắt kết nối";
+
+                    if (isSystem) {
+                      return Center(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            message.text,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
 
                     return Align(
                       alignment: isAdmin

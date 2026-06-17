@@ -47,6 +47,24 @@ class ChatService {
     }
   }
 
+  Future<String> uploadChatImage(String filePath) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(filePath),
+      });
+
+      final response = await apiClient.post(
+        '/api/v1/chat/upload',
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
+      );
+      
+      return response.data['url'] ?? '';
+    } on DioException catch (e) {
+      throw Exception(_extractError(e));
+    }
+  }
+
   String _extractError(DioException e) {
     if (e.response != null) {
       final data = e.response!.data;
