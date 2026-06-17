@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../data/models/user_model.dart';
+import '../data/services/auth_service.dart';
 import 'cart_provider.dart';
+import 'profile_provider.dart';
 
 class AuthState {
   final UserModel? user;
@@ -38,7 +40,6 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   static const _tokenKey = 'access_token';
-  static const _userKey = 'auth_user';
 
   AuthNotifier(this._ref) : super(const AuthState(isLoading: true)) {
     _restoreSession();
@@ -46,13 +47,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   final Ref _ref;
   final _storage = const FlutterSecureStorage();
+  final _authService = AuthService();
 
   Future<void> _restoreSession() async {
     try {
       final token = await _storage.read(key: _tokenKey);
-      final userJson = await _storage.read(key: _userKey);
-      if (token != null && userJson != null) {
-        final user = UserModel.fromJson(json.decode(userJson) as Map<String, dynamic>);
+      if (token != null) {
+        // Gọi API lấy user đầy đủ
+        final user = await _authService.getCurrentUser();
         state = AuthState(
           user: user,
           token: token,
@@ -62,14 +64,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
         return;
       }
-    } catch (_) {}
+    } catch (_) {
+      await _storage.delete(key: _tokenKey);
+    }
     state = const AuthState(isLoading: false);
   }
 
   Future<void> login(String token, UserModel user) async {
     await _storage.write(key: _tokenKey, value: token);
-    final userJson = json.encode(user.toJson());
-    await _storage.write(key: _userKey, value: userJson);
     state = AuthState(
       user: user,
       token: token,
@@ -81,22 +83,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     await _storage.delete(key: _tokenKey);
-    await _storage.delete(key: _userKey);
     _ref.read(cartProvider.notifier).clear();
+    _ref.read(profileUpdateProvider.notifier).reset();
     state = const AuthState(isLoading: false);
   }
 
   Future<void> updateUser(UserModel updatedUser) async {
-    final userJson = json.encode(updatedUser.toJson());
-    await _storage.write(key: _userKey, value: userJson);
     state = state.copyWith(user: updatedUser);
   }
 
   Future<void> updateAccountVerified(bool value) async {
     if (state.user != null) {
       final updatedUser = state.user!.copyWith(accountVerified: value);
-      final userJson = json.encode(updatedUser.toJson());
-      await _storage.write(key: _userKey, value: userJson);
       state = state.copyWith(user: updatedUser, accountVerified: value);
     } else {
       state = state.copyWith(accountVerified: value);
