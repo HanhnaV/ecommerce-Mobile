@@ -249,12 +249,31 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           if (_addresses.isEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Text(
-                'Ban chua co dia chi nao.',
-                style: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFFA8A29E)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Ban chua co dia chi nao.',
+                    style: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFFA8A29E)),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      await context.push('/addresses/add');
+                      _loadData();
+                    },
+                    icon: const Icon(Icons.add_location_alt_outlined),
+                    label: const Text('Them dia chi moi'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF2563EB),
+                      side: const BorderSide(color: Color(0xFF2563EB)),
+                    ),
+                  ),
+                ],
               ),
             )
-          else
+          else ...[
             ...List.generate(_addresses.length, (i) {
               final addr = _addresses[i];
               return GestureDetector(
@@ -334,6 +353,28 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
               );
             }),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE7E5E4)),
+                ),
+              ),
+              child: TextButton.icon(
+                onPressed: () async {
+                  await context.push('/addresses/add');
+                  _loadData();
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Them dia chi khac'),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF2563EB),
+                  alignment: Alignment.centerLeft,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
