@@ -13,6 +13,11 @@ class ChatSocketService {
     void Function(StompFrame)? onConnect,
     void Function(StompFrame)? onError,
   }) async {
+    if (isConnected) {
+      print('Socket already connected, skipping...');
+      return;
+    }
+
     final token = await _storage.read(key: 'access_token');
 
     final baseUrl = dotenv.get('API_BASE_URL');
@@ -59,6 +64,8 @@ class ChatSocketService {
                 }
               },
             );
+
+            onConnect?.call(frame);
           },
         onStompError: (frame) {
           print(
@@ -68,6 +75,8 @@ class ChatSocketService {
 
         onWebSocketError: (error) {
           print('WS Error: $error');
+          // Giả lập một StompFrame lỗi để gọi onError
+          onError?.call(StompFrame(command: 'ERROR', headers: {}, body: error.toString()));
         },
       ),
     );
@@ -75,7 +84,7 @@ class ChatSocketService {
     _stompClient?.activate();
   }
 
-  void sendMessage(String text) {
+  void sendMessage(String text, {String? imageUrl}) {
     if (_stompClient == null ||
         !_stompClient!.connected) {
       return;
@@ -85,6 +94,7 @@ class ChatSocketService {
       destination: '/app/chat',
       body: json.encode({
         'text': text,
+        if (imageUrl != null) 'imageUrl': imageUrl,
       }),
     );
   }

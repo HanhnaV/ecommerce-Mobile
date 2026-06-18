@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../providers/admin_chat_provider.dart';
 
-class AdminMainLayout extends StatelessWidget {
+class AdminMainLayout extends ConsumerStatefulWidget {
   const AdminMainLayout({
     super.key,
     required this.navigationShell,
@@ -9,10 +11,24 @@ class AdminMainLayout extends StatelessWidget {
 
   final StatefulNavigationShell navigationShell;
 
+  @override
+  ConsumerState<AdminMainLayout> createState() => _AdminMainLayoutState();
+}
+
+class _AdminMainLayoutState extends ConsumerState<AdminMainLayout> {
+  @override
+  void initState() {
+    super.initState();
+    // Kết nối socket admin ngay khi vào layout chính
+    Future.microtask(() {
+      ref.read(adminChatProvider.notifier).connect();
+    });
+  }
+
   void _goBranch(int index) {
-    navigationShell.goBranch(
+    widget.navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 
@@ -21,9 +37,9 @@ class AdminMainLayout extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
+        selectedIndex: widget.navigationShell.currentIndex,
         onDestinationSelected: _goBranch,
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
         indicatorColor: const Color(0xFF2563EB).withOpacity(0.2),
