@@ -89,6 +89,17 @@ class AuthService {
     }
   }
 
+  Future<UserModel> getCurrentUser() async {
+    try {
+      final response = await apiClient.get('/api/v1/user/me');
+      final data = response.data as Map<String, dynamic>;
+      return UserModel.fromJson(data);
+    } on DioException catch (e) {
+      final msg = _extractError(e);
+      throw Exception(msg);
+    }
+  }
+
   String _extractError(DioException e) {
     if (e.response != null) {
       final data = e.response!.data;

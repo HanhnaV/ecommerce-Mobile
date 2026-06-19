@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/chat_provider.dart';
@@ -49,6 +50,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     await Future.delayed(
       const Duration(milliseconds: 100),
     );
+
+    if (mounted) {
+      _scrollToBottom();
+    }
+  }
+
+  Future<void> _handleImageSend(XFile file) async {
+    await ref.read(chatProvider.notifier).sendImage(file);
 
     if (mounted) {
       _scrollToBottom();
@@ -133,15 +142,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
                 Text(
                   chatState.isConnected
-                      ? 'Đang hoạt động'
+                      ? 'Online'
                       : 'Mất kết nối',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? const Color(
-                        0xFF94A3B8)
-                        : const Color(
-                        0xFF64748B),
+                    color: chatState.isConnected 
+                        ? Colors.green 
+                        : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
                   ),
                 ),
               ],
@@ -153,13 +160,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           IconButton(
             icon: Icon(
               chatState.isConnected
-                  ? Icons.wifi
-                  : Icons.wifi_off,
+                  ? Icons.link_off
+                  : Icons.link,
+              color: chatState.isConnected ? AppColors.error : AppColors.primary,
             ),
+            tooltip: chatState.isConnected ? 'Ngắt kết nối' : 'Kết nối lại',
             onPressed: () {
-              ref
-                  .read(chatProvider.notifier)
-                  .initChat();
+              if (chatState.isConnected) {
+                ref.read(chatProvider.notifier).disconnectChat();
+              } else {
+                ref.read(chatProvider.notifier).initChat();
+              }
             },
           ),
         ],
@@ -176,6 +187,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
           ChatInput(
             onSend: _handleSend,
+            onImageSend: _handleImageSend,
             isSending:
             chatState.isSending,
           ),

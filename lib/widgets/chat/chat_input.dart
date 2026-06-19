@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/constants/app_colors.dart';
 
 class ChatInput extends StatefulWidget {
   final Function(String) onSend;
+  final Function(XFile) onImageSend;
   final bool isSending;
 
   const ChatInput({
     super.key,
     required this.onSend,
+    required this.onImageSend,
     this.isSending = false,
   });
 
@@ -17,6 +20,7 @@ class ChatInput extends StatefulWidget {
 
 class _ChatInputState extends State<ChatInput> {
   final _controller = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void dispose() {
@@ -31,13 +35,27 @@ class _ChatInputState extends State<ChatInput> {
     _controller.clear();
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+      if (image != null) {
+        widget.onImageSend(image);
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: EdgeInsets.only(
-        left: 12,
+        left: 8,
         right: 8,
         top: 8,
         bottom: MediaQuery.of(context).padding.bottom + 8,
@@ -54,6 +72,13 @@ class _ChatInputState extends State<ChatInput> {
       ),
       child: Row(
         children: [
+          IconButton(
+            icon: Icon(
+              Icons.add_circle_outline,
+              color: isDark ? const Color(0xFF94A3B8) : AppColors.primary,
+            ),
+            onPressed: widget.isSending ? null : _pickImage,
+          ),
           Expanded(
             child: TextField(
               controller: _controller,

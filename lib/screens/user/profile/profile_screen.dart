@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,8 +25,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   String? _selectedGender;
   DateTime? _selectedDate;
   String? _avatarPath;
+  XFile? _avatarFile;
   bool _isEditing = false;
   bool _isSaving = false;
+  Uint8List? _avatarBytes;
 
   @override
   void initState() {
@@ -67,7 +70,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
     if (source == null) return;
     final image = await picker.pickImage(source: source, imageQuality: 80);
-    if (image != null) setState(() => _avatarPath = image.path);
+    if (image != null) {
+      final bytes = await image.readAsBytes();
+      setState(() {
+        _avatarPath = image.path;
+        _avatarFile = image;
+        _avatarBytes = bytes;
+      });
+    }
   }
 
   Future<void> _selectDate() async {
@@ -201,12 +211,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 radius: 50,
                 backgroundColor:
                     isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-                backgroundImage: _avatarPath != null
-                    ? FileImage(File(_avatarPath!)) as ImageProvider
+                backgroundImage: _avatarFile != null
+                    ? MemoryImage(_avatarBytes!) as ImageProvider
                     : (avatarUrl != null && avatarUrl.isNotEmpty)
                         ? NetworkImage(avatarUrl) as ImageProvider
                         : null,
-                child: avatarUrl == null || _avatarPath != null
+                child: _avatarFile == null && (avatarUrl == null || avatarUrl.isEmpty)
                     ? Icon(Icons.person,
                         size: 50,
                         color: isDark
