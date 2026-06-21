@@ -1,14 +1,14 @@
 import 'dart:convert';
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class AdminLiveChatMessage {
-  final String sessionId;
+  final String sessionId; 
   final String text;
   final String from;
   final bool fromAdmin;
+  final String? imageUrl;
   final DateTime createdAt;
 
   const AdminLiveChatMessage({
@@ -16,14 +16,17 @@ class AdminLiveChatMessage {
     required this.text,
     required this.from,
     required this.fromAdmin,
+    this.imageUrl,
     required this.createdAt,
   });
 
   factory AdminLiveChatMessage.customerFromJson(Map<String, dynamic> json) {
     return AdminLiveChatMessage(
-      sessionId: json['sessionId']?.toString() ?? '',
+      // Backend Java của bạn gửi accountId, chúng ta dùng nó làm sessionId để gộp khung chat
+      sessionId: json['accountId']?.toString() ?? '',
       text: json['text']?.toString() ?? '',
-      from: json['from']?.toString() ?? 'Khach',
+      imageUrl: json['imageUrl']?.toString(),
+      from: json['userName']?.toString() ?? 'Khách',
       fromAdmin: false,
       createdAt: DateTime.now(),
     );
@@ -32,10 +35,12 @@ class AdminLiveChatMessage {
   factory AdminLiveChatMessage.admin({
     required String sessionId,
     required String text,
+    String? imageUrl,
   }) {
     return AdminLiveChatMessage(
       sessionId: sessionId,
       text: text,
+      imageUrl: imageUrl,
       from: 'Admin',
       fromAdmin: true,
       createdAt: DateTime.now(),
@@ -60,16 +65,11 @@ class AdminChatSocketService {
 
     final token = await _storage.read(key: 'access_token');
     final baseUrl = dotenv.get('API_BASE_URL', fallback: 'http://localhost:8080');
-    final wsUrl =
-        '$baseUrl/api/v1/ws-chat?token=$token';
-    final headers =
-        token == null ? <String, String>{} : {'Authorization': 'Bearer $token'};
+    final wsUrl = '$baseUrl/api/v1/ws-chat?token=$token';
 
     _stompClient = StompClient(
       config: StompConfig.sockJS(
         url: wsUrl,
-        // stompConnectHeaders: headers,
-        // webSocketConnectHeaders: headers,
         onConnect: (frame) {
           _stompClient?.subscribe(
             destination: adminTopic,
@@ -79,18 +79,14 @@ class AdminChatSocketService {
               final decoded = json.decode(body);
               if (decoded is! Map<String, dynamic>) return;
               final message = AdminLiveChatMessage.customerFromJson(decoded);
-              if (message.sessionId.isEmpty || message.text.isEmpty) return;
+              if (message.sessionId.isEmpty) return;
               onMessageReceived(message);
             },
           );
           onConnect?.call(frame);
         },
-        onStompError: (frame) {
-          onError?.call(frame);
-        },
-        onWebSocketError: (error) {
-          onWebSocketError?.call(error);
-        },
+        onStompError: (frame) => onError?.call(frame),
+        onWebSocketError: (error) => onWebSocketError?.call(error),
       ),
     );
 
@@ -100,14 +96,17 @@ class AdminChatSocketService {
   void sendReply({
     required String sessionId,
     required String text,
+    String? imageUrl,
   }) {
-    if (!isConnected || sessionId.isEmpty || text.trim().isEmpty) return;
+    if (!isConnected || sessionId.isEmpty) return;
 
     _stompClient?.send(
       destination: replyDestination,
       body: json.encode({
+        // Gửi key "sessionId" chứa accountId của khách để Backend xử lý
         'sessionId': sessionId,
         'text': text.trim(),
+        if (imageUrl != null) 'imageUrl': imageUrl,
       }),
     );
   }

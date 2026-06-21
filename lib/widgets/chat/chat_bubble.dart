@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/chat_message_model.dart';
 
@@ -7,6 +8,17 @@ class ChatBubble extends StatelessWidget {
   final ChatMessage message;
 
   const ChatBubble({super.key, required this.message});
+
+  String _getFullImageUrl(String? url) {
+    if (url == null || url.isEmpty) return '';
+    if (url.startsWith('http')) return url;
+    
+    final baseUrl = dotenv.get('API_BASE_URL', fallback: 'http://localhost:8080');
+    final cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+    final cleanUrl = url.startsWith('/') ? url : '/$url';
+    
+    return '$cleanBaseUrl$cleanUrl';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +51,7 @@ class ChatBubble extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: CachedNetworkImage(
-                    imageUrl: message.imageUrl!,
+                    imageUrl: _getFullImageUrl(message.imageUrl),
                     placeholder: (context, url) => Container(
                       width: 200,
                       height: 200,

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../data/models/user_model.dart';
 import '../data/services/auth_service.dart';
+import 'auth_provider.dart';
+import 'chat_provider.dart';
+import 'admin_chat_provider.dart';
 import 'cart_provider.dart';
 import 'profile_provider.dart';
 
@@ -82,6 +85,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    _ref.read(chatProvider.notifier).resetState();
+    _ref.read(adminChatProvider.notifier).resetState();
+
     await _storage.delete(key: _tokenKey);
     _ref.read(cartProvider.notifier).clear();
     _ref.read(profileUpdateProvider.notifier).reset();

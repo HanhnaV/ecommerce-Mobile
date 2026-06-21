@@ -1,30 +1,33 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../data/models/chat_message_model.dart';
-import '../data/services/chat_socket_services.dart';
 import '../data/services/chat_service.dart';
+import '../data/services/chat_socket_services.dart';
 import 'auth_provider.dart';
 
 final chatSocketServiceProvider =
 Provider<ChatSocketService>((ref) => ChatSocketService());
 
-final chatServiceProvider = Provider<ChatService>((ref) => ChatService());
+final chatServiceProvider =
+Provider<ChatService>((ref) => ChatService());
 
 class ChatState {
   final List<ChatMessage> messages;
   final bool isLoading;
   final bool isSending;
   final bool isConnecting;
-  final String? error;
   final bool isConnected;
+  final String? error;
 
   const ChatState({
     this.messages = const [],
     this.isLoading = false,
     this.isSending = false,
     this.isConnecting = false,
-    this.error,
     this.isConnected = false,
+    this.error,
   });
 
   ChatState copyWith({
@@ -32,16 +35,16 @@ class ChatState {
     bool? isLoading,
     bool? isSending,
     bool? isConnecting,
-    String? error,
     bool? isConnected,
+    String? error,
   }) {
     return ChatState(
       messages: messages ?? this.messages,
       isLoading: isLoading ?? this.isLoading,
       isSending: isSending ?? this.isSending,
       isConnecting: isConnecting ?? this.isConnecting,
-      error: error,
       isConnected: isConnected ?? this.isConnected,
+      error: error,
     );
   }
 }
@@ -51,58 +54,43 @@ class ChatNotifier extends StateNotifier<ChatState> {
   final ChatService _apiService;
   final Ref _ref;
 
-  ChatNotifier(this._socketService, this._apiService, this._ref)
-      : super(const ChatState());
+  ChatNotifier(
+      this._socketService,
+      this._apiService,
+      this._ref,
+      ) : super(const ChatState());
 
   Future<void> initChat() async {
-    if (state.isConnected || state.isConnecting) return;
-    state = state.copyWith(isConnecting: true);
-    _connectSocket();
-  }
+    if (state.isConnected || state.isConnecting) {
+      return;
+    }
 
-  void _connectSocket() {
-    _socketService.connect(
+    final authState = _ref.read(authStateProvider);
+    final accountId = authState.user?.id;
+
+    if (accountId == null || accountId.isEmpty) {
+      state = state.copyWith(
+        error: 'User chưa đăng nhập',
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      isConnecting: true,
+    );
+
+    await _socketService.connect(
       onMessageReceived: (data) {
-        final isFromAdmin = data['fromAdmin'] == true;
-        final content = data['text'] ?? '';
-        final imageUrl = data['imageUrl'] as String?;
-        
-        // Kiểm tra xem tin nhắn này có phải là phản hồi của chính User vừa gửi không
-        // Nếu là USER gửi, và trong list đã có tin nhắn temp có nội dung y hệt thì bỏ qua hoặc xóa temp
-        if (!isFromAdmin) {
-          final hasTemp = state.messages.any((m) => 
-            m.senderType == 'USER' && 
-            m.content == content && 
-            m.imageUrl == imageUrl &&
-            m.id.startsWith('temp-')
-          );
-          if (hasTemp) {
-            // Loại bỏ tin nhắn temp và thay bằng tin nhắn chính thức từ server
-            state = state.copyWith(
-              messages: [
-                ...state.messages.where((m) => !(m.senderType == 'USER' && m.content == content && m.imageUrl == imageUrl && m.id.startsWith('temp-'))),
-                ChatMessage(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  conversationId: '',
-                  content: content,
-                  imageUrl: imageUrl,
-                  senderType: 'USER',
-                  createdAt: DateTime.now(),
-                ),
-              ],
-            );
-            return;
-          }
-        }
+        debugPrint('RECEIVE: $data');
 
         final message = ChatMessage(
           id: DateTime.now()
               .millisecondsSinceEpoch
               .toString(),
           conversationId: '',
-          content: content,
-          imageUrl: imageUrl,
-          senderType: isFromAdmin ? 'ADMIN' : 'USER',
+          content: data['text'] ?? '',
+          imageUrl: data['imageUrl'],
+          senderType: 'ADMIN',
           createdAt: DateTime.now(),
         );
 
@@ -115,24 +103,37 @@ class ChatNotifier extends StateNotifier<ChatState> {
       },
 
       onConnect: (_) {
+        debugPrint(
+          'SOCKET CONNECTED SUCCESS',
+        );
+
         state = state.copyWith(
           isConnected: true,
           isConnecting: false,
+          error: null,
         );
       },
 
-      onError: (_) {
+      onError: (frame) {
+        debugPrint(
+          'SOCKET ERROR: ${frame.body}',
+        );
+
         state = state.copyWith(
           isConnected: false,
           isConnecting: false,
-          error: 'Socket connection failed',
+          error: 'Không thể kết nối chat',
         );
       },
     );
   }
 
-  Future<void> sendMessage(String content) async {
-    if (content.trim().isEmpty) return;
+  Future<void> sendMessage(
+      String content,
+      ) async {
+    if (content.trim().isEmpty) {
+      return;
+    }
 
     if (!_socketService.isConnected) {
       state = state.copyWith(
@@ -141,9 +142,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
       return;
     }
 
-    // Hiển thị tin nhắn ngay trên UI
     final tempMessage = ChatMessage(
-      id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
+      id:
+      'temp-${DateTime.now().millisecondsSinceEpoch}',
       conversationId: '',
       content: content.trim(),
       senderType: 'USER',
@@ -151,31 +152,40 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
 
     state = state.copyWith(
-      messages: [...state.messages, tempMessage],
+      messages: [
+        ...state.messages,
+        tempMessage,
+      ],
     );
 
-    _socketService.sendMessage(content.trim());
+    _socketService.sendMessage(
+      text: content.trim(),
+    );
   }
 
-  Future<void> sendImage(XFile file) async {
+  Future<void> sendImage(
+      XFile file,
+      ) async {
     if (!_socketService.isConnected) {
-      state = state.copyWith(error: 'Socket disconnected');
+      state = state.copyWith(
+        error: 'Socket disconnected',
+      );
       return;
     }
 
-    state = state.copyWith(isSending: true);
+    state = state.copyWith(
+      isSending: true,
+    );
 
     try {
-      // 1. Upload ảnh lên server để lấy URL
-      final imageUrl = await _apiService.uploadChatImage(file.path);
+      final imageUrl =
+      await _apiService.uploadChatImage(
+        file,
+      );
 
-      if (imageUrl.isEmpty) {
-        throw Exception('Upload failed: Empty URL returned');
-      }
-
-      // 2. Hiển thị tin nhắn tạm thời với ảnh
       final tempMessage = ChatMessage(
-        id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
+        id:
+        'temp-${DateTime.now().millisecondsSinceEpoch}',
         conversationId: '',
         content: '',
         imageUrl: imageUrl,
@@ -184,35 +194,43 @@ class ChatNotifier extends StateNotifier<ChatState> {
       );
 
       state = state.copyWith(
-        messages: [...state.messages, tempMessage],
+        messages: [
+          ...state.messages,
+          tempMessage,
+        ],
         isSending: false,
       );
 
-      // 3. Gửi thông tin qua Socket
-      _socketService.sendMessage('', imageUrl: imageUrl);
+      _socketService.sendMessage(
+        text: '',
+        imageUrl: imageUrl,
+      );
     } catch (e) {
       state = state.copyWith(
         isSending: false,
-        error: 'Khong the gui anh: ${e.toString()}',
+        error: e.toString(),
       );
     }
   }
 
-  void clearError() {
-    state = state.copyWith(error: null);
+  Future<void> disconnectChat() async {
+    _socketService.disconnect();
+
+    state = state.copyWith(
+      isConnected: false,
+    );
   }
 
-  Future<void> disconnectChat() async {
-    if (state.isConnected) {
-      // Gửi thông báo cho admin trước khi ngắt kết nối
-      _socketService.sendMessage("Customer đã ngắt kết nối");
-      
-      // Đợi một chút để tin nhắn kịp gửi đi
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      _socketService.disconnect();
-      state = state.copyWith(isConnected: false);
-    }
+  void clearError() {
+    state = state.copyWith(
+      error: null,
+    );
+  }
+
+  void resetState() {
+    _socketService.disconnect();
+
+    state = const ChatState();
   }
 
   @override
@@ -223,15 +241,17 @@ class ChatNotifier extends StateNotifier<ChatState> {
 }
 
 final chatProvider =
-StateNotifierProvider<ChatNotifier, ChatState>(
+StateNotifierProvider<
+    ChatNotifier,
+    ChatState>(
       (ref) {
-    final socketService =
-    ref.watch(chatSocketServiceProvider);
-    final apiService = ref.watch(chatServiceProvider);
-
     return ChatNotifier(
-      socketService,
-      apiService,
+      ref.watch(
+        chatSocketServiceProvider,
+      ),
+      ref.watch(
+        chatServiceProvider,
+      ),
       ref,
     );
   },

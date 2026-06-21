@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../providers/admin_chat_provider.dart';
 
@@ -67,6 +70,18 @@ class _ChatCenterTabState
     extends ConsumerState<_ChatCenterTab> {
   final TextEditingController _controller =
   TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+
+  String _getFullImageUrl(String? url) {
+    if (url == null || url.isEmpty) return '';
+    if (url.startsWith('http')) return url;
+
+    final baseUrl = dotenv.get('API_BASE_URL', fallback: 'http://localhost:8080');
+    final cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+    final cleanUrl = url.startsWith('/') ? url : '/$url';
+
+    return '$cleanBaseUrl$cleanUrl';
+  }
 
   @override
   void initState() {
@@ -90,6 +105,20 @@ class _ChatCenterTabState
         .sendReply(text);
 
     _controller.clear();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+      if (image != null) {
+        await ref.read(adminChatProvider.notifier).sendImageReply(image);
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
   }
 
   @override
@@ -120,13 +149,14 @@ class _ChatCenterTabState
 
                   leading: CircleAvatar(
                     child: Text(
-                      session.sessionId
-                          .substring(0, 2),
+                      session.customerName.isNotEmpty
+                          ? session.customerName.substring(0, 1).toUpperCase()
+                          : '?',
                     ),
                   ),
 
                   title: Text(
-                    session.sessionId,
+                    session.customerName,
                     maxLines: 1,
                     overflow:
                     TextOverflow.ellipsis,
@@ -198,7 +228,7 @@ class _ChatCenterTabState
                 Theme.of(context)
                     .cardColor,
                 child: Text(
-                  'Session: ${selectedSession.sessionId}',
+                  'Đang chat với: ${selectedSession.customerName}',
                   style:
                   const TextStyle(
                     fontWeight:
@@ -299,17 +329,40 @@ class _ChatCenterTabState
                               12),
                         ),
 
-                        child: Text(
-                          message.text,
-                          style:
-                          TextStyle(
-                            color:
-                            isAdmin
-                                ? Colors
-                                .white
-                                : Colors
-                                .black,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: isAdmin ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          children: [
+                            if (message.imageUrl != null && message.imageUrl!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: CachedNetworkImage(
+                                    imageUrl: _getFullImageUrl(message.imageUrl),
+                                    placeholder: (context, url) => const SizedBox(
+                                      width: 200,
+                                      height: 200,
+                                      child: Center(child: CircularProgressIndicator()),
+                                    ),
+                                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            if (message.text.isNotEmpty)
+                              Text(
+                                message.text,
+                                style:
+                                TextStyle(
+                                  color:
+                                  isAdmin
+                                      ? Colors
+                                      .white
+                                      : Colors
+                                      .black,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     );
@@ -327,12 +380,17 @@ class _ChatCenterTabState
                     .all(12),
                 child: Row(
                   children: [
+                    IconButton(
+                      icon: const Icon(Icons.add_photo_alternate_outlined),
+                      onPressed: state.isSending ? null : _pickImage,
+                      color: Colors.blue,
+                    ),
                     Expanded(
                       child:
                       TextField(
                         controller:
                         _controller,
-
+                        enabled: !state.isSending,
                         decoration:
                         const InputDecoration(
                           hintText:
@@ -352,11 +410,16 @@ class _ChatCenterTabState
 
                     IconButton(
                       onPressed:
-                      _send,
-                      icon:
-                      const Icon(
-                        Icons.send,
-                      ),
+                      state.isSending ? null : _send,
+                      icon: state.isSending 
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(
+                            Icons.send,
+                          ),
                     ),
                   ],
                 ),
