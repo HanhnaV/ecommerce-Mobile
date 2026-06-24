@@ -24,6 +24,7 @@ import '../../screens/user/seller/seller_registration_screen.dart';
 import '../../screens/user/seller/seller_dashboard_screen.dart';
 import '../../screens/home/flash_sale_screen.dart';
 import '../../screens/user/chat/chat_screen.dart';
+import '../../screens/user/chat/chatbot_screen.dart';
 import '../../screens/user/report/report_screen.dart';
 import '../../screens/admin/admin_main_layout.dart';
 import '../../screens/admin/dashboard/admin_dashboard_screen.dart';
@@ -200,6 +201,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           path: '/flash-sale',
           builder: (context, state) => const FlashSaleScreen()),
       GoRoute(path: '/chat', builder: (context, state) => const ChatScreen()),
+      GoRoute(path: '/chatbot', builder: (context, state) => const ChatbotScreen()),
       GoRoute(
           path: '/report', builder: (context, state) => const ReportScreen()),
       GoRoute(
