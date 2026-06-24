@@ -39,53 +39,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _loadProducts() async {
-    setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 300));
-    final mockProducts = [
-      const ProductModel(
-        id: '1',
-        name: 'AirPods Max',
-        basePrice: 13500000,
-        thumbnailUrl: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-max-select-silver-202011?wid=500&hei=500&fmt=png-alpha',
-      ),
-      const ProductModel(
-        id: '2',
-        name: 'AirPods Pro 2',
-        basePrice: 6200000,
-        thumbnailUrl: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MQD83?wid=500&hei=500&fmt=png-alpha',
-      ),
-      const ProductModel(
-        id: '3',
-        name: 'AirPods 4 ANC',
-        basePrice: 4500000,
-        thumbnailUrl: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MXP63?wid=500&hei=500&fmt=png-alpha',
-      ),
-      const ProductModel(
-        id: '4',
-        name: 'AirPods 4',
-        basePrice: 3500000,
-        thumbnailUrl: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MXP63?wid=500&hei=500&fmt=png-alpha',
-      ),
-      const ProductModel(
-        id: '5',
-        name: 'AirPods 3',
-        basePrice: 4200000,
-        thumbnailUrl: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MME73?wid=500&hei=500&fmt=png-alpha',
-      ),
-      const ProductModel(
-        id: '6',
-        name: 'AirPods 2',
-        basePrice: 2800000,
-        thumbnailUrl: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MV7N2?wid=500&hei=500&fmt=png-alpha',
-      ),
-    ];
-    if (mounted) {
-      setState(() {
-        _products = mockProducts;
-        _filteredProducts = mockProducts;
-        _loading = false;
-        _error = null;
-      });
+    if (!mounted) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+
+    try {
+      final productPage = await _productService.getProducts(page: 0, size: 50);
+      if (mounted) {
+        setState(() {
+          _products = productPage.content;
+          _filteredProducts = productPage.content;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('HomeScreen: Error loading products from backend: $e');
+      if (mounted) {
+        setState(() {
+          _products = [];
+          _filteredProducts = [];
+          _error = 'Không thể tải sản phẩm. Vui lòng kiểm tra kết nối.';
+          _loading = false;
+        });
+      }
     }
   }
 

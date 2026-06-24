@@ -508,6 +508,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               height: 1,
               color:
                   isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          _actionTile(Icons.smart_toy_outlined, 'Trợ lý AI (Chatbot)', Icons.chevron_right,
+              isDark, () => context.push('/chatbot')),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
           _actionTile(Icons.chat, 'Tro chuyen ho tro', Icons.chevron_right,
               isDark, () => context.push('/chat')),
           Divider(

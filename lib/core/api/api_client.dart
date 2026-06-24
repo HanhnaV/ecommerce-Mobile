@@ -12,4 +12,4 @@ final apiClient = Dio(
       'Accept': 'application/json',
     },
   ),
-)..interceptors.addAll([AuthInterceptor(), LogInterceptor(requestBody: true, responseBody: true)]);
+)..interceptors.addAll([AuthInterceptor(), SessionInterceptor(), LogInterceptor(requestBody: true, responseBody: true)]);
