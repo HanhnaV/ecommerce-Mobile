@@ -15,6 +15,7 @@ import '../../screens/user/checkout/payment_result_screen.dart';
 import '../../screens/user/profile/profile_screen.dart';
 import '../../screens/user/profile/wallet_screen.dart';
 import '../../screens/user/profile/kyc_screen.dart';
+import '../../screens/user/profile/store_map_screen.dart';
 import '../../screens/user/address/address_list_screen.dart';
 import '../../screens/user/address/address_form_screen.dart';
 import '../../screens/user/orders/order_list_screen.dart';
@@ -153,6 +154,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           path: '/profile', builder: (context, state) => const ProfileScreen()),
       GoRoute(
           path: '/wallet', builder: (context, state) => const WalletScreen()),
+      GoRoute(
+          path: '/store-map', builder: (context, state) => const StoreMapScreen()),
       GoRoute(
           path: '/addresses',
           builder: (context, state) => const AddressListScreen()),
