@@ -140,72 +140,29 @@ class ChatbotNotifier extends StateNotifier<ChatbotState> {
       error: null,
     );
 
-    if (state.inputExpected) {
-      // Trường hợp tương tác theo kịch bản input (Regex tìm kiếm...)
-      try {
-        final response = await _apiService.interactChatbot(text: text.trim());
+    try {
+      final response = await _apiService.interactChatbot(text: text.trim());
 
-        final botMessage = ChatbotUiMessage(
-          id: 'bot-${DateTime.now().millisecondsSinceEpoch}',
-          type: 'bot',
-          text: response.messageText,
-          productCards: response.productCards,
-        );
-
-        state = state.copyWith(
-          messages: [...state.messages, botMessage],
-          options: response.options,
-          inputExpected: response.inputExpected,
-          inputHint: response.inputHint ?? '',
-          liveChatMode: response.humanHandoffRequired,
-          isSending: false,
-        );
-      } catch (e) {
-        state = state.copyWith(
-          isSending: false,
-          error: e.toString(),
-        );
-      }
-    } else {
-      // Trường hợp chat tự do: Gọi AI chatbot qua SSE stream
-      final botMsgId = 'bot-${DateTime.now().millisecondsSinceEpoch}';
-      final emptyBotMessage = ChatbotUiMessage(
-        id: botMsgId,
+      final botMessage = ChatbotUiMessage(
+        id: 'bot-${DateTime.now().millisecondsSinceEpoch}',
         type: 'bot',
-        text: '',
+        text: response.messageText,
+        productCards: response.productCards,
       );
 
       state = state.copyWith(
-        messages: [...state.messages, emptyBotMessage],
-        isSending: false, // Tắt spinner để hiển thị chữ chạy
+        messages: [...state.messages, botMessage],
+        options: response.options,
+        inputExpected: response.inputExpected,
+        inputHint: response.inputHint ?? '',
+        liveChatMode: response.humanHandoffRequired,
+        isSending: false,
       );
-
-      try {
-        String accumulatedText = '';
-        final stream = _apiService.streamChatbot(text.trim());
-        
-        await for (final chunk in stream) {
-          accumulatedText += chunk;
-          state = state.copyWith(
-            messages: state.messages.map((msg) {
-              if (msg.id == botMsgId) {
-                return msg.copyWith(text: accumulatedText);
-              }
-              return msg;
-            }).toList(),
-          );
-        }
-      } catch (e) {
-        state = state.copyWith(
-          error: e.toString(),
-          messages: state.messages.map((msg) {
-            if (msg.id == botMsgId && msg.text.isEmpty) {
-              return msg.copyWith(text: 'Lỗi: Không thể kết nối với AI Chatbox.');
-            }
-            return msg;
-          }).toList(),
-        );
-      }
+    } catch (e) {
+      state = state.copyWith(
+        isSending: false,
+        error: e.toString(),
+      );
     }
   }
 
